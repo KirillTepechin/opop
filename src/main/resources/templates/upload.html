@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{default}">
+<body>
+<div class="container" layout:fragment="content">
+    <div class="container mt-5">
+        <div id="main" class="col justify-content-center" style="text-align: -webkit-center;">
+
+            <div class="col-sm-6">
+                <div class="card" id="customFileCard">
+                    <div class="card-body">
+                        <div class="custom-file">
+                            <input type="file" class="custom-file-input" id="customFile" name="file" accept=".zip">
+                            <label class="btn btn-primary btn-lg" for="customFile"  data-toggle="tooltip" data-html="true" data-placement="top"
+                                   title="
+                                   <p>На вход подается архив документов в формате zip</p>
+                                   <p>Общий шаблон документов:</p>
+                            <img src='/img/tooltip.png' style='pointer-events: none'>
+                            <p>Шаблон для РПД: *Код дисциплины* *Название дисциплины*</p>
+                            <p>Шаблон для ФОС: *Код дисциплины* *Название дисциплины* ФОС</p>">
+                                Загрузите файлы
+                                <img src="/img/cloud.png" width="23">
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div id="analyse" class="d-flex justify-content-center align-items-center text-primary" style="display:none !important">
+                    <strong>Анализ документов...</strong>
+                    <div class="spinner-grow ms-auto text-primary" role="status" aria-hidden="true" style="width: 3rem; height: 3rem;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="/js/submit.js"></script>
+</div>
+</body>
+</html>

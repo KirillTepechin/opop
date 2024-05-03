@@ -1,0 +1,13 @@
+package opopproto;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+
+@SpringBootTest
+class OpopProtoApplicationTests {
+
+	@Test
+	void contextLoads() {
+	}
+
+}
