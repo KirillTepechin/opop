@@ -27,9 +27,12 @@ public class FosComplianceStateChecker {
         String fosRpdErrors = checkToRpd(fosDataList, rpdDataList);
         String fosTitleErrors = checkTitle(fosDataList);
 
-        fosErrors.add(selfFosErrors);
-        fosErrors.add(fosRpdErrors);
-        fosErrors.add(fosTitleErrors);
+        if(selfFosErrors!=null)
+            fosErrors.add(selfFosErrors);
+        if(fosRpdErrors!=null)
+            fosErrors.add(fosRpdErrors);
+        if(fosTitleErrors!=null)
+            fosErrors.add(fosTitleErrors);
 
         return fosErrors;
     }

@@ -9,4 +9,8 @@ public class RpdTitle {
     private String titleEqualsProfile;
     private String titleEqualsQualification;
     private String titleEqualsLevel;
+
+    public void setTitleEqualsSpeciality(String titleEqualsSpeciality){
+        this.titleEqualsSpeciality = titleEqualsSpeciality.replaceAll("[«»]", "");
+    }
 }

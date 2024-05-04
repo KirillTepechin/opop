@@ -8,6 +8,8 @@ import java.util.List;
 public class ComplianceState implements ErrorState {
     private List<String> characteristicErrors;
     private List<String> fosErrors;
+    private List<String> rpdErrors;
+
     @Override
     public boolean isValid() {
         return true;

@@ -45,8 +45,10 @@ public class WordParser {
             RpdTitle rpdTitle = new RpdTitle();
             AppendixData appendixData = new AppendixData();
             List<XWPFTable> tables = document.getTables();
+            boolean parsePracticeName = false;
             for (var table: tables) {
                 //Парсинг таблиц в титуле
+
                 if (table.getRow(0).getCell(0).getText()
                         .trim().equals("Дисциплина (модуль)") && table.getRows().size()==6) {
                     rpdTitle.setTitleEqualsDiscipline(table.getRow(0).getCell(1).getText().trim());
@@ -116,7 +118,7 @@ public class WordParser {
                             .toList();
                     appendixData.setControlForms(controlForms);
                 }
-                // Таблица 1
+                // Таблица 1 TODO: Попробовать парсить опираясь на текст в строках а не на положение?
                 else if(table.getRow(0).getCell(0).getText()
                         .trim().equals("Форма обучения")){
                     List<VolumeSemester> volumeSemesters = new ArrayList<>();
@@ -142,7 +144,7 @@ public class WordParser {
                             volumeSemester.setLectures(tryParseInt(table.getRow(4).getCell(index).getText()));
                             volumeSemester.setPw(tryParseInt(table.getRow(5).getCell(index).getText()));
                             volumeSemester.setLw(tryParseInt(table.getRow(6).getCell(index).getText()));
-                            volumeSemester.setIw(tryParseInt(table.getRow(6).getCell(index).getText()));
+                            volumeSemester.setIw(tryParseInt(table.getRow(7).getCell(index).getText()));
                             volumeSemester.setControl(tryParseInt(table.getRow(18).getCell(index).getText()));
                             volumeSemester.setTotal(tryParseInt(table.getRow(19).getCell(index).getText()));
                             volumeSemester.setZeCount(tryParseInt(table.getRow(20).getCell(index).getText()));
@@ -180,10 +182,21 @@ public class WordParser {
             rpdData.setRpdTitle(rpdTitle);
             rpdDataList.add(rpdData);
 
-            for (XWPFParagraph paragraph : document.getParagraphs()) {
+            Iterator<XWPFParagraph> iterator = document.getParagraphs().iterator();
+            while (iterator.hasNext()) {
+                var paragraph = iterator.next();
                 String text = paragraph.getText().trim();
-                if (text.contains("Целью освоения дисциплины") || text.contains("Целью практики")) {
-                    rpdData.setSection31ContainsSpeciality(text);
+                if (text.contains("Целью освоения дисциплины") || text.contains("Целью практики") || text.contains("Цель практики")) {
+                    rpdData.setSection3ContainsDiscipline1(text);
+                }
+                else if (text.equalsIgnoreCase("Программа практики")) {
+                    paragraph = iterator.next();
+                    text = paragraph.getText().trim();
+                    while (text.isEmpty()){
+                        paragraph = iterator.next();
+                        text = paragraph.getText().trim();
+                    }
+                    rpdData.getRpdTitle().setTitleEqualsDiscipline(text);
                 }
             }
 

@@ -259,6 +259,9 @@ function handleFileSelect(event) {
                 if(data.fosErrors.length>0){
                     mainBtnGroup.append(createComplianceError(data.fosErrors, "Ошибки в ФОС"))
                 }
+                if(data.rpdErrors.length>0){
+                    mainBtnGroup.append(createComplianceError(data.rpdErrors, "Ошибки в РПД"))
+                }
             }
         }
 

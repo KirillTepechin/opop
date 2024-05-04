@@ -15,9 +15,8 @@ public class RpdData {
     private RpdTitle rpdTitle;
     //Обьем дисциплины Таблица1
     private List<VolumeSemester> volumeSemesters;
-    private String section31ContainsSpeciality;
-    //TODO: спарсить еще это
-    //private String section5ContainsDisciplineIndex;
+    private String section3ContainsDiscipline1;
+
     private List<Competence> competences;
     //Таблица3
     private VolumeSemester volumeTotal;
@@ -27,6 +26,12 @@ public class RpdData {
 
     public boolean isPractice(){
         Pattern pattern = Pattern.compile("\\(П\\)|\\(У\\)");
+        Matcher matcher = pattern.matcher(rpdName);
+
+        return matcher.find();
+    }
+    public boolean isEduPractice(){
+        Pattern pattern = Pattern.compile("\\(У\\)");
         Matcher matcher = pattern.matcher(rpdName);
 
         return matcher.find();

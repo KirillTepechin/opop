@@ -75,11 +75,17 @@ public class ComplianceStateChecker {
 
         //Ошибки ФОС
         List<String> fosErrors = new ArrayList<>();
-        fosErrors.add(namingErrorFos);
+        if(namingErrorFos!=null)
+            fosErrors.add(namingErrorFos);
         fosErrors.addAll(fosComplianceStateChecker.check(fosDataList, rpdDataList));
         complianceState.setFosErrors(fosErrors);
 
         //TODO:Чек ошибок РПД
+        List<String> rpdErrors = new ArrayList<>();
+        if(namingErrorRpd!=null)
+            rpdErrors.add(namingErrorRpd);
+        rpdErrors.addAll(rpdComplianceStateChecker.check(rpdDataList, syllabusData));
+        complianceState.setRpdErrors(rpdErrors);
 
         return complianceState;
     }
