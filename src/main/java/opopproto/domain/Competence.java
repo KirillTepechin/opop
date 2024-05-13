@@ -18,6 +18,7 @@ public class Competence {
     private List<Standard> standards = new ArrayList<>();
     private List<ID> ids = new ArrayList<>();
 
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -32,6 +33,9 @@ public class Competence {
     }
 
     private String trimName(String name){
-        return name.trim().replaceAll("[^\\p{L}\\s]+$", "");
+        return name.trim()
+                .replaceAll("[^\\p{L}\\s]+$", "")
+                .replaceAll("\n", " ")
+                .replace("\u00a0","");
     }
 }

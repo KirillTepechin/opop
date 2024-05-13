@@ -22,6 +22,7 @@ public class RpdData {
     private VolumeSemester volumeTotal;
     private List<EvaluateCompetences> evaluateCompetences = new ArrayList<>();
     //TODO: список литературы
+    //private List<BibliographyPair> bibliographyList = new ArrayList<>();
     private AppendixData appendixData;
 
     public boolean isPractice(){

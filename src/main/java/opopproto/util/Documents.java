@@ -2,6 +2,7 @@ package opopproto.util;
 
 
 import lombok.Data;
+import lombok.Getter;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Component;
@@ -16,6 +17,18 @@ import java.util.Map;
         proxyMode = ScopedProxyMode.TARGET_CLASS)
 @Data
 public class Documents {
+    @Getter
+    private final String DOCS_PATH = "src/main/resources/opopDocs";
+    @Getter
+    private final String DOCS_GEN_PATH = "src/main/resources/generateDocs";
+    @Getter
+    private final String ZIP_GEN_PATH = "src/main/resources/generateZip";
+    @Getter
+    private final String ZIP_INS_PATH = "src/main/resources/inspectionZip";
+    @Getter
+    private final String RPD_TEMPLATE_PATH = "src/main/resources/rpdTemplates/МакетРпд.docx";
+    @Getter
+    private final String RPD_PRACTICE_TEMPLATE_PATH = "src/main/resources/rpdTemplates/МакетРпдПрактика.docx";
 
     private File characteristics;
 

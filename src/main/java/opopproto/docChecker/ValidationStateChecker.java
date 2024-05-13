@@ -10,6 +10,8 @@ import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import static org.apache.commons.compress.utils.FileNameUtils.getExtension;
+
 @Component
 public class ValidationStateChecker {
     @Autowired
@@ -125,11 +127,6 @@ public class ValidationStateChecker {
         }
 
         return destFile;
-    }
-    private String getExtension(String filename) {
-        return Optional.ofNullable(filename)
-                .filter(f -> f.contains("."))
-                .map(f -> f.substring(filename.lastIndexOf(".") + 1)).get();
     }
 
 

@@ -11,7 +11,10 @@ import opopproto.data.rpd.EvaluateCompetences;
 import opopproto.data.rpd.RpdData;
 import opopproto.data.rpd.RpdTitle;
 import opopproto.domain.*;
-import org.apache.poi.xwpf.usermodel.*;
+import org.apache.poi.xwpf.usermodel.XWPFDocument;
+import org.apache.poi.xwpf.usermodel.XWPFParagraph;
+import org.apache.poi.xwpf.usermodel.XWPFTable;
+import org.apache.poi.xwpf.usermodel.XWPFTableRow;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -90,33 +93,42 @@ public class WordParser {
                     }
                 }
                 //Приложение
+                //TODO парсить по местоположению или по названию строк?
                 else if (table.getRow(0).getCell(0).getText()
-                        .trim().equals("Дисциплина (модуль)")) {
-                    appendixData.setEqualsDiscipline(table.getRow(0).getCell(1).getText().trim());
-                    appendixData.setEqualsLevel(table.getRow(1).getCell(1).getText().trim());
-                    appendixData.setEqualsQualification(table.getRow(2).getCell(1).getText().trim());
-                    appendixData.setEqualsSpeciality(table.getRow(3).getCell(1).getText().trim());
-                    appendixData.setEqualsProfile(table.getRow(4).getCell(1).getText().trim());
-                    String competencesString = table.getRow(5).getCell(1).getText();
-                    if(competencesString.contains(",")){
-                        appendixData.setCompetencesIndexes(Arrays.stream(competencesString
-                                .split(",")).toList().stream().map(String::trim).toList());
-                    }
-                    else if (competencesString.contains(";")) {
-                        appendixData.setCompetencesIndexes(Arrays.stream(competencesString
-                                .split(";")).toList().stream().map(String::trim).toList());
-                    }
-                    else {
-                        appendixData.setCompetencesIndexes(List.of(competencesString.trim()));
-                    }
-                    appendixData.setZeCount(parseZe(table.getRow(7).getCell(1).getText()));
-                    appendixData.setTotalHours(parseTotalHours(table.getRow(7).getCell(1).getText()));
+                        .trim().equals("Дисциплина (модуль)") ||
+                        table.getRow(0).getCell(0).getText()
+                                .trim().equals("Практика")) {
+                    try {
+                        appendixData.setEqualsDiscipline(table.getRow(0).getCell(1).getText().trim());
+                        appendixData.setEqualsLevel(table.getRow(1).getCell(1).getText().trim());
+                        appendixData.setEqualsQualification(table.getRow(2).getCell(1).getText().trim());
+                        appendixData.setEqualsSpeciality(table.getRow(3).getCell(1).getText().trim());
+                        appendixData.setEqualsProfile(table.getRow(4).getCell(1).getText().trim());
+                        String competencesString = table.getRow(5).getCell(1).getText();
+                        if(competencesString.contains(",")){
+                            appendixData.setCompetencesIndexes(Arrays.stream(competencesString
+                                    .split(",")).toList().stream().map(String::trim).toList());
+                        }
+                        else if (competencesString.contains(";")) {
+                            appendixData.setCompetencesIndexes(Arrays.stream(competencesString
+                                    .split(";")).toList().stream().map(String::trim).toList());
+                        }
+                        else {
+                            appendixData.setCompetencesIndexes(List.of(competencesString.trim()));
+                        }
+                        appendixData.setZeCount(parseZe(table.getRow(8).getCell(1).getText()));
+                        appendixData.setTotalHours(parseTotalHours(table.getRow(8).getCell(1).getText()));
 
-                    List<String> controlForms = Arrays.stream(table.getRow(7).getCell(1).getText().trim()
-                            .split(","))
-                            .map(cf -> cf.trim().toLowerCase())
-                            .toList();
-                    appendixData.setControlForms(controlForms);
+                        List<String> controlForms = Arrays.stream(table.getRow(9).getCell(1).getText().trim()
+                                        .split(","))
+                                .map(cf -> cf.trim().toLowerCase())
+                                .toList();
+                        appendixData.setControlForms(controlForms);
+                    }
+                    catch (Exception ignored){
+                        appendixData = null;
+                    }
+
                 }
                 // Таблица 1 TODO: Попробовать парсить опираясь на текст в строках а не на положение?
                 else if(table.getRow(0).getCell(0).getText()
@@ -183,6 +195,8 @@ public class WordParser {
             rpdDataList.add(rpdData);
 
             Iterator<XWPFParagraph> iterator = document.getParagraphs().iterator();
+//            List<BibliographyPair> bibliographyPairs = new ArrayList<>();
+
             while (iterator.hasNext()) {
                 var paragraph = iterator.next();
                 String text = paragraph.getText().trim();
@@ -198,8 +212,31 @@ public class WordParser {
                     }
                     rpdData.getRpdTitle().setTitleEqualsDiscipline(text);
                 }
+//                Pattern pattern = Pattern.compile("^(\\d+\\..*\\d{4}\\.)");
+//                Matcher matcher = pattern.matcher(text);
+//                if (matcher.find()) {
+//                    BibliographyPair bibliographyPair = new BibliographyPair();
+//                    Pattern patternNum = Pattern.compile("^(\\d+\\.)");
+//                    Matcher matcherNum = patternNum.matcher(text);
+//                    if(matcherNum.find()){
+//                        String group = matcherNum.group(1);
+//                        bibliographyPair.setNum(Integer.parseInt(group.substring(0, group.length()-1)));
+//                    }
+//                    Pattern patternYear = Pattern.compile("(\\d{4}\\.)");
+//                    Matcher matcherYear = patternYear.matcher(text);
+//                    if(matcherYear.find()){
+//                        String group = matcherYear.group(1);
+//                        bibliographyPair.setYear(Integer.parseInt(group.substring(0, group.length()-1)));
+//                        bibliographyPairs.add(bibliographyPair);
+//                    }
+//                }
+//                else if (paragraph.getNumFmt()!=null) {
+//                    if(paragraph.getNumFmt().equals("decimal")){
+//                        System.out.println();
+//                    }
+//                }
             }
-
+//            rpdData.setBibliographyList(bibliographyPairs);
         }
         return rpdDataList;
     }
@@ -241,10 +278,14 @@ public class WordParser {
                     competence.setIndex(row.getCell(0).getText().trim());
                     competence.setName(row.getCell(1).getText().trim());
                 }
-                String idText = row.getCell(2).getText().trim().substring(competence.getIndex().length());
+                String idText = row.getCell(2).getText().trim();
                 String name = row.getCell(3).getText().trim();
-                ID id = new ID(idText, name);
-                competence.getIds().add(id);
+                Pattern patternId = Pattern.compile("(ИД\\s*-\\s*\\d)");
+                Matcher matcherId = patternId.matcher(idText);
+                if(matcherId.find()){
+                    ID id = new ID(matcherId.group(1), name);
+                    competence.getIds().add(id);
+                }
             }
             //Добавляем последнюю
             competences.add(competence);
@@ -563,13 +604,21 @@ public class WordParser {
                 }
             }
             //Между кодом индикатора и названием стоит индекс компетенции
-            String idText = row.getCell(idTableIndex).getText();
+            String idText = row.getCell(idTableIndex).getText().trim();
             //Удаляем идентификатор, индекс компетенции и пробелы
-            String name = idText.substring(5+String.valueOf(idIndex).length()+competence.getIndex().length(), idText.length());
-            ID id = new ID("ИД-" + idIndex, name);
-            competence.getIds().add(id);
-            idIndex++;
-
+            Pattern patternNameInverse = Pattern.compile("(ИД\\s*-\\s*\\d\\s*(УК|ОПК|УКи|ОПКи|ПК)\\s*-\\s*\\d+)",
+                    Pattern.CASE_INSENSITIVE);
+            Matcher matcherName = patternNameInverse.matcher(idText);
+            if(matcherName.find()){
+                String name = idText.replaceAll(matcherName.group(1), "").trim();
+                Pattern patternId = Pattern.compile("(ИД\\s*-\\s*\\d)");
+                Matcher matcherId = patternId.matcher(idText);
+                if(matcherId.find()){
+                    ID id = new ID(matcherId.group(1), name);
+                    competence.getIds().add(id);
+                    idIndex++;
+                }
+            }
         }
         //Добавляем последнюю
         competences.add(competence);
@@ -648,10 +697,19 @@ public class WordParser {
                 //Между кодом индикатора и названием стоит индекс компетенции
                 String idText = row.getCell(3).getText();
                 //Удаляем идентификатор, индекс компетенции и пробелы
-                String name = idText.substring(5+String.valueOf(idIndex).length()+competence.getIndex().length(), idText.length());
-                ID id = new ID("ИД-" + idIndex, name);
-                competence.getIds().add(id);
-                idIndex++;
+                Pattern patternNameInverse = Pattern.compile("(ИД\\s*-\\s*\\d\\s*(УК|ОПК|УКи|ОПКи|ПК)\\s*-\\s*\\d+)",
+                        Pattern.CASE_INSENSITIVE);
+                Matcher matcherName = patternNameInverse.matcher(idText);
+                if(matcherName.find()){
+                    String name = idText.replaceAll(matcherName.group(1), "").trim();
+                    Pattern patternId = Pattern.compile("(ИД\\s*-\\s*\\d)");
+                    Matcher matcherId = patternId.matcher(idText);
+                    if(matcherId.find()){
+                        ID id = new ID(matcherId.group(1), name);
+                        competence.getIds().add(id);
+                        idIndex++;
+                    }
+                }
             }
 
         }
@@ -781,22 +839,30 @@ public class WordParser {
     }
 
     private int parseZe(String string){
-        Pattern patternZe = Pattern.compile("\\d\\s*(з\\.е|зет)");
-        Pattern patternZeCount = Pattern.compile("\\d");
-        Matcher matcher = patternZe.matcher(string);
-        if(matcher.find()){
-            String group = matcher.group(1);
-            return Integer.parseInt(patternZeCount.matcher(group).group(1));
+        string = string.toLowerCase().replaceAll(" ", "");
+        Pattern patternZe = Pattern.compile("(\\d+\\s*(з\\.е|зет|зачётныхединиц|зачетныхединиц|зачетныхед|зачётныеединицы|зачетныеединицы))", Pattern.CASE_INSENSITIVE);
+        Pattern patternZeCount = Pattern.compile("(\\d+)");
+        Matcher matcherZe = patternZe.matcher(string);
+        if(matcherZe.find()){
+            String group = matcherZe.group(1);
+            Matcher matcherZeCount = patternZeCount.matcher(group);
+            if(matcherZeCount.find()){
+                return Integer.parseInt(matcherZeCount.group(1));
+            }
         }
         return -1;
     }
     private int parseTotalHours(String string){
-        Pattern patternTotalHours = Pattern.compile("\\d\\s*(часов|ч\\.)");
-        Pattern patternTotalHoursCount = Pattern.compile("\\d");
+        string = string.toLowerCase().replaceAll(" ", "");
+        Pattern patternTotalHours = Pattern.compile("(\\d+\\s*(часа|часов|ч|час))", Pattern.CASE_INSENSITIVE);
+        Pattern patternTotalHoursCount = Pattern.compile("(\\d+)");
         Matcher matcher = patternTotalHours.matcher(string);
         if(matcher.find()){
             String group = matcher.group(1);
-            return Integer.parseInt(patternTotalHoursCount.matcher(group).group(1));
+            Matcher matcherTotalHoursCount = patternTotalHoursCount.matcher(group);
+            if(matcherTotalHoursCount.find()){
+                return Integer.parseInt(matcherTotalHoursCount.group(1));
+            }
         }
         return -1;
     }

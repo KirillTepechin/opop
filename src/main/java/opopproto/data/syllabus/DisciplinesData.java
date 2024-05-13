@@ -42,4 +42,14 @@ public class DisciplinesData {
 
         return allDisciplines;
     }
+
+    public List<Discipline> getAllDisciplinesWithoutB3(){
+        List<Discipline> allDisciplines = new ArrayList<>();
+        allDisciplines.addAll(block1DisciplineList);
+        allDisciplines.addAll(block2DisciplineList);
+        allDisciplines.addAll(block4DisciplineList);
+
+        return allDisciplines;
+    }
+
 }

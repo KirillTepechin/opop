@@ -1,9 +1,11 @@
 package opopproto.docChecker.rpd;
 
+import opopproto.data.characteristic.CharacteristicData;
+import opopproto.data.rpd.AppendixData;
+import opopproto.data.rpd.EvaluateCompetences;
 import opopproto.data.rpd.RpdData;
 import opopproto.data.syllabus.SyllabusData;
-import opopproto.domain.Discipline;
-import opopproto.domain.VolumeSemester;
+import opopproto.domain.*;
 import opopproto.util.Documents;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -13,17 +15,23 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Component
 public class RpdComplianceStateChecker {
     @Autowired
     private Documents documents;
-    public List<String> check(List<RpdData> rpdDataList, SyllabusData syllabusData){
+    public List<String> check(List<RpdData> rpdDataList, SyllabusData syllabusData,
+                              CharacteristicData characteristicData){
         List<String> errors = new ArrayList<>();
 
         String titleErrors = checkTitle(rpdDataList, syllabusData);
         String table1Errors = checkTable1(rpdDataList, syllabusData);
         String containsDiscipline = checkContainsDiscipline(rpdDataList, syllabusData);
+        String competencesErrors = checkCompetences(rpdDataList, syllabusData, characteristicData);
+        String table3Errors = checkTable3(rpdDataList, syllabusData);
+        String evaluatesErrors = checkEvaluates(rpdDataList, syllabusData, characteristicData);
+        String appendixErrors = checkAppendix(rpdDataList, syllabusData);
 
         if(titleErrors!=null)
             errors.add(titleErrors);
@@ -31,6 +39,14 @@ public class RpdComplianceStateChecker {
             errors.add(table1Errors);
         if(containsDiscipline!=null)
             errors.add(containsDiscipline);
+        if(competencesErrors!=null)
+            errors.add(competencesErrors);
+        if(table3Errors!=null)
+            errors.add(table3Errors);
+        if(evaluatesErrors!=null)
+            errors.add(evaluatesErrors);
+        if(appendixErrors!=null)
+            errors.add(appendixErrors);
 
         return errors;
     }
@@ -121,7 +137,6 @@ public class RpdComplianceStateChecker {
 
         return null;
     }
-
     private String checkTable1(List<RpdData> rpdDataList, SyllabusData syllabusData){
         List<String> tableErrors = new ArrayList<>();
         for (var rpdData: rpdDataList) {
@@ -238,7 +253,318 @@ public class RpdComplianceStateChecker {
         }
         return null;
     }
+    private String checkCompetences(List<RpdData> rpdDataList, SyllabusData syllabusData,
+                                            CharacteristicData characteristicData){
+        List<String> competencesErrors = new ArrayList<>();
 
+        for (var rpdData:rpdDataList) {
+            List<Competence> syllabusDisciplineCompetences = syllabusData.getDisciplinesData().getAllDisciplines().stream()
+                    .filter(discipline -> (discipline.getIndex() + " " + discipline.getName())
+                            .equals(rpdData.getRpdName())).toList().get(0).getCompetences();
+
+            if(rpdData.getCompetences() == null){
+                competencesErrors.add("В РПД документе '" + rpdData.getRpdName() + "' отсутствуют компетенции");
+                continue;
+            }
+
+            if(rpdData.getCompetences().size() > syllabusDisciplineCompetences.size()){
+                competencesErrors.add("В РПД документе '" + rpdData.getRpdName() + "' количество компетенций больше чем в плане");
+            }
+            if(rpdData.getCompetences().size() < syllabusDisciplineCompetences.size()){
+                competencesErrors.add("В РПД документе '" + rpdData.getRpdName() + "' количество компетенций меньше чем в плане");
+            }
+
+            for (var syllabusDisComp: syllabusDisciplineCompetences) {
+                Competence rpdDisComp;
+                try {
+                    rpdDisComp = rpdData.getCompetences().stream()
+                            .filter(competence -> competence.getIndex().equals(syllabusDisComp.getIndex())).toList().get(0);
+                }
+                catch (IndexOutOfBoundsException e){
+                    competencesErrors.add("В РПД документе '" + rpdData.getRpdName() +
+                            "' не найдена компетенция " + syllabusDisComp.getIndex());
+                    continue;
+                }
+                if(!syllabusDisComp.equals(rpdDisComp)){
+                    competencesErrors.add("В РПД документе '" + rpdData.getRpdName() +
+                            "' именование компетенции с кодом " + syllabusDisComp.getIndex() +
+                            " не совпадает с планом");
+                }
+                Competence characteristicDisComp;
+                try {
+                    List<Competence> characteristicCompetences = new ArrayList<>();
+                    characteristicCompetences.addAll(characteristicData.getTableData().getUCompetences());
+                    characteristicCompetences.addAll(characteristicData.getTableData().getPCompetences());
+                    characteristicCompetences.addAll(characteristicData.getTableData().getOpCompetences());
+
+                    characteristicDisComp = characteristicCompetences.stream()
+                            .filter(competence -> competence.getIndex().equals(rpdDisComp.getIndex())).toList().get(0);
+                }
+                catch (IndexOutOfBoundsException e){
+                    continue;
+                }
+
+                if(rpdDisComp.getIds().size() > characteristicDisComp.getIds().size()){
+                    competencesErrors.add("В РПД документе '" + rpdData.getRpdName() +
+                            "' количество индикаторов компетенции "+ characteristicDisComp.getIndex() +
+                            " больше чем в характеристике");
+                }
+                if(rpdData.getCompetences().size() < syllabusDisciplineCompetences.size()){
+                    competencesErrors.add("В РПД документе '" + rpdData.getRpdName() +
+                            "' количество индикаторов компетенции "+ characteristicDisComp.getIndex() +
+                            " меньше чем в характеристике");
+                }
+
+                for (var characteristicId: characteristicDisComp.getIds()) {
+                    ID rpdId;
+                    try {
+                        rpdId = rpdDisComp.getIds().stream()
+                                .filter(id -> id.getIndex().equals(characteristicId.getIndex())).toList().get(0);
+                    }
+                    catch (IndexOutOfBoundsException e){
+                        competencesErrors.add("В РПД документе '" + rpdData.getRpdName() +
+                                "' не найден индикатор компетенции " + characteristicDisComp.getIndex() +
+                                " " + characteristicId.getIndex());
+                        continue;
+                    }
+                    if(!rpdId.getName().startsWith(characteristicId.getName())){
+                        competencesErrors.add("В РПД документе '" + rpdData.getRpdName() +
+                                "' именование индикатора компетенции " + characteristicDisComp.getIndex() +
+                                " " + characteristicId.getIndex() + " не совпадает с характеристикой");
+                    }
+                }
+            }
+        }
+
+
+        if(!competencesErrors.isEmpty()){
+            return "<b>Ошибки в таблице компетенций РПД</b>.<br><br>"+ String.join("<br><br>",competencesErrors);
+        }
+
+        return null;
+    }
+    private String checkTable3(List<RpdData> rpdDataList, SyllabusData syllabusData){
+        List<String> tableErrors = new ArrayList<>();
+
+        for (var rpdData: rpdDataList) {
+
+            if(!rpdData.isPractice()){
+
+                VolumeSemester rpdDataVolumeTotal = rpdData.getVolumeTotal();
+
+                Discipline disciplineSyllabus = syllabusData.getDisciplinesData().getAllDisciplines().stream()
+                        .filter(discipline -> (discipline.getIndex() + " " + discipline.getName())
+                                .equals(rpdData.getRpdName())).toList().get(0);
+                VolumeTotal syllabusVolumeTotal = disciplineSyllabus.getVolumeData().getOverallVolume();
+                List<VolumeSemester> volumesBySemesterSyllabus = disciplineSyllabus.getVolumeData().getVolumesBySemester();
+                int syllabusLectures = volumesBySemesterSyllabus.stream().mapToInt(VolumeSemester::getLectures).sum();
+                int syllabusPw = volumesBySemesterSyllabus.stream().mapToInt(VolumeSemester::getPw).sum();
+                int syllabusLw = volumesBySemesterSyllabus.stream().mapToInt(VolumeSemester::getLw).sum();
+                //TODO: здесь пока считаем СР как контроль+СР
+                int syllabusIw = volumesBySemesterSyllabus.stream().mapToInt(value -> value.getControl()+value.getIw()).sum();
+
+
+                if(syllabusLectures!=rpdDataVolumeTotal.getLectures()){
+                    tableErrors.add("В РПД документе '"+ rpdData.getRpdName() +
+                            "' количество часов <i>лекционного типа</i> несовпадает с планом. План - " +
+                            syllabusLectures + " ч");
+                }
+                if(syllabusPw!=rpdDataVolumeTotal.getPw()){
+                    tableErrors.add("В РПД документе '"+ rpdData.getRpdName() +
+                            "' количество часов <i>практического типа</i> несовпадает с планом. План - " +
+                            syllabusPw + " ч");
+                }
+                if(syllabusLw!=rpdDataVolumeTotal.getLw()){
+                    tableErrors.add("В РПД документе '"+ rpdData.getRpdName() +
+                            "' количество часов <i>лабораторных занятий</i> несовпадает с планом. План - " +
+                            syllabusLw + " ч");
+                }
+                if(syllabusIw!=rpdDataVolumeTotal.getIw()){
+                    tableErrors.add("В РПД документе '"+ rpdData.getRpdName() +
+                            "' количество часов <i>самостоятельной работы</i> несовпадает с планом. План - " +
+                            syllabusIw + " ч (Считается как Контроль+СР)");
+                }
+                if(syllabusVolumeTotal.getTotal()!=rpdDataVolumeTotal.getTotal()){
+                    tableErrors.add("В РПД документе '"+ rpdData.getRpdName() +
+                            "' количество <i>итоговых</i> часов несовпадает с планом. План - " +
+                            syllabusVolumeTotal.getTotal() + " ч");
+                }
+            }
+        }
+
+        if(!tableErrors.isEmpty()){
+            return "<b>Ошибки в таблице содержания дисциплины (Таблица 3) РПД</b>.<br><br>"+ String.join("<br><br>",tableErrors);
+        }
+
+        return null;
+    }
+    private String checkEvaluates(List<RpdData> rpdDataList, SyllabusData syllabusData,
+                                  CharacteristicData characteristicData){
+        List<String> evaluatesErrors = new ArrayList<>();
+
+        for (var rpdData:rpdDataList) {
+            List<Competence> syllabusDisciplineCompetences = syllabusData.getDisciplinesData().getAllDisciplines().stream()
+                    .filter(discipline -> (discipline.getIndex() + " " + discipline.getName())
+                            .equals(rpdData.getRpdName())).toList().get(0).getCompetences();
+
+            if(rpdData.getEvaluateCompetences() == null){
+                evaluatesErrors.add("В РПД документе '" + rpdData.getRpdName() + "' отсутствуют оценочные средства");
+                continue;
+            }
+            int rpdEvalCompSize = rpdData.getEvaluateCompetences().stream()
+                    .collect(Collectors.groupingBy(EvaluateCompetences::getCompetenceIndex))
+                    .size();
+            if(rpdEvalCompSize > syllabusDisciplineCompetences.size()){
+                evaluatesErrors.add("В РПД документе '" + rpdData.getRpdName() + "' количество компетенций больше чем в плане");
+            }
+            if(rpdEvalCompSize < syllabusDisciplineCompetences.size()){
+                evaluatesErrors.add("В РПД документе '" + rpdData.getRpdName() + "' количество компетенций меньше чем в плане");
+            }
+
+            for (var syllabusDisComp: syllabusDisciplineCompetences) {
+                var rpdDisCompetences = rpdData.getEvaluateCompetences().stream()
+                            .filter(evaluateCompetences -> evaluateCompetences.getCompetenceIndex()
+                                    .equalsIgnoreCase(syllabusDisComp.getIndex())).toList();
+
+                if(rpdDisCompetences.isEmpty()){
+                    evaluatesErrors.add("В РПД документе '" + rpdData.getRpdName() +
+                            "' не найдена компетенция " + syllabusDisComp.getIndex());
+                    continue;
+                }
+                Competence characteristicDisComp;
+                try {
+                    List<Competence> characteristicCompetences = new ArrayList<>();
+                    characteristicCompetences.addAll(characteristicData.getTableData().getUCompetences());
+                    characteristicCompetences.addAll(characteristicData.getTableData().getPCompetences());
+                    characteristicCompetences.addAll(characteristicData.getTableData().getOpCompetences());
+
+                    characteristicDisComp = characteristicCompetences.stream()
+                            .filter(competence -> competence.getIndex().equals(rpdDisCompetences.get(0).getCompetenceIndex())).toList().get(0);
+                }
+                catch (IndexOutOfBoundsException e){
+                    continue;
+                }
+                if(rpdDisCompetences.size() > characteristicDisComp.getIds().size()){
+                    evaluatesErrors.add("В РПД документе '" + rpdData.getRpdName() +
+                            "' количество индикаторов компетенции "+ characteristicDisComp.getIndex() +
+                            " больше чем в характеристике");
+                }
+                if(rpdDisCompetences.size() < characteristicDisComp.getIds().size()){
+                    evaluatesErrors.add("В РПД документе '" + rpdData.getRpdName() +
+                            "' количество индикаторов компетенции "+ characteristicDisComp.getIndex() +
+                            " меньше чем в характеристике");
+                }
+
+                for (var characteristicId: characteristicDisComp.getIds()) {
+                    try {
+                        rpdDisCompetences.stream()
+                                .filter(id -> id.getIdCompetence().startsWith(characteristicId.getIndex())).toList().get(0);
+                    }
+                    catch (IndexOutOfBoundsException e){
+                        evaluatesErrors.add("В РПД документе '" + rpdData.getRpdName() +
+                                "' не найден индикатор компетенции " + characteristicDisComp.getIndex() +
+                                " " + characteristicId.getIndex());
+                    }
+                }
+            }
+        }
+
+        if(!evaluatesErrors.isEmpty()){
+            return "<b>Ошибки в таблице оценочных средств РПД</b>.<br><br>"+ String.join("<br><br>",evaluatesErrors);
+        }
+
+        return null;
+    }
+    private String checkAppendix(List<RpdData> rpdDataList, SyllabusData syllabusData){
+        List<String> appendixErrors = new ArrayList<>();
+
+        for (var rpdData: rpdDataList) {
+            AppendixData appendixData = rpdData.getAppendixData();
+            if(appendixData==null){
+                appendixErrors.add("В РПД документе '" + rpdData.getRpdName() + "' не найдено Приложение А");
+                continue;
+            }
+            Discipline syllabusRpdDiscipline = syllabusData.getDisciplinesData().getAllDisciplines().stream()
+                    .filter(discipline -> (discipline.getIndex() + " " + discipline.getName())
+                            .equals(rpdData.getRpdName())).toList().get(0);
+
+            if(rpdData.isPractice()){
+                String correctTitle;
+                if(rpdData.isEduPractice()){
+                    correctTitle = "Учебная практика: " + syllabusRpdDiscipline.getName();
+                }
+                else {
+                    correctTitle = "Производственная практика: " + syllabusRpdDiscipline.getName();
+                }
+                if(!correctTitle.equalsIgnoreCase(appendixData.getEqualsDiscipline())){
+                    appendixErrors.add("РПД документ '" + rpdData.getRpdName() + "' содержит не корректное название дисциплины");
+                }
+            }
+            else if(!syllabusRpdDiscipline.getName().equals(appendixData.getEqualsDiscipline())){
+                appendixErrors.add("РПД документ '" + rpdData.getRpdName() + "' содержит не корректное название дисциплины");
+            }
+            if(!appendixData.getEqualsLevel().toLowerCase().contains(syllabusData.getSyllabusTitle().getQualification().toLowerCase())){
+                appendixErrors.add("РПД документ '" + rpdData.getRpdName() + "' содержит не корректный уровень образования");
+            }
+            if(!syllabusData.getSyllabusTitle().getQualification().equalsIgnoreCase(appendixData.getEqualsQualification())){
+                appendixErrors.add("РПД документ '" + rpdData.getRpdName() + "' содержит не корректную квалификацию");
+            }
+            if(!syllabusData.getSyllabusTitle().getSpecialty().equals(appendixData.getEqualsSpeciality())){
+                appendixErrors.add("РПД документ '" + rpdData.getRpdName() + "' содержит не корректное направление подготовки");
+            }
+            if(!syllabusData.getSyllabusTitle().getProfile().equals(appendixData.getEqualsProfile())){
+                appendixErrors.add("РПД документ '" + rpdData.getRpdName() + "' содержит не корректный профиль направления");
+            }
+            if(syllabusRpdDiscipline.getVolumeData().getOverallVolume().getZeCount() != appendixData.getZeCount()){
+                appendixErrors.add("РПД документ '" + rpdData.getRpdName() + "' содержит не корректное количество зачетных единиц");
+            }
+            if(syllabusRpdDiscipline.getVolumeData().getOverallVolume().getTotal() != appendixData.getTotalHours()){
+                appendixErrors.add("РПД документ '" + rpdData.getRpdName() + "' содержит не корректное количество часов");
+            }
+            //Форма аттестации
+            var syllabusCFs = syllabusRpdDiscipline.getVolumeData().getControlForm();
+
+            if(syllabusCFs.size()>appendixData.getControlForms().size()){
+                appendixErrors.add("В РПД документе '" + rpdData.getRpdName() +
+                        "' количество форм промежуточной аттестации меньше чем в плане");
+            }
+            if(syllabusCFs.size()<appendixData.getControlForms().size()){
+                appendixErrors.add("В РПД документе '" + rpdData.getRpdName() +
+                        "' количество форм промежуточной аттестации больше чем в плане");
+            }
+            for (var syllabusCF:syllabusCFs) {
+                if(!appendixData.getControlForms().stream().map(String::toLowerCase).toList().contains(syllabusCF)){
+                    appendixErrors.add("РПД документ '" + rpdData.getRpdName() +
+                            "' не содержит форму промежуточной аттестации <i>" + syllabusCF +"</i>");
+                }
+            }
+
+            //Формируемые комп
+            var syllabusComps = syllabusRpdDiscipline.getCompetences();
+
+            if(syllabusComps.size()>appendixData.getCompetencesIndexes().size()){
+                appendixErrors.add("В РПД документе '" + rpdData.getRpdName() +
+                        "' количество формируемых компетенций больше чем в плане");
+            }
+            if(syllabusComps.size()<appendixData.getCompetencesIndexes().size()){
+                appendixErrors.add("В РПД документе '" + rpdData.getRpdName() +
+                        "' количество формируемых компетенций меньше чем в плане");
+            }
+            for (var syllabusComp:syllabusComps) {
+                if(!appendixData.getCompetencesIndexes().stream().map(ci->ci.trim().toLowerCase()).toList()
+                        .contains(syllabusComp.getIndex().trim().toLowerCase())){
+                    appendixErrors.add("РПД документ '" + rpdData.getRpdName() +
+                            "' не содержит формируемую компетенцию <i>" + syllabusComp.getIndex() +"</i>");
+                }
+            }
+        }
+
+        if(!appendixErrors.isEmpty()){
+            return "<b>Ошибки в Приложении А РПД</b>.<br><br>"+ String.join("<br><br>",appendixErrors);
+        }
+
+        return null;
+    }
     public void removeB3(Map<String, File> rpd){
         List<String> keysToRemove = new ArrayList<>();
         for (var f :rpd.entrySet()) {

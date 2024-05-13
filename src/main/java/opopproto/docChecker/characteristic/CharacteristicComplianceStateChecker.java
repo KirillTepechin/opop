@@ -237,7 +237,7 @@ public class CharacteristicComplianceStateChecker {
             }
         }
         if(!errorIndexes.isEmpty()){
-            String stringCharacteristicCompetences = String.join(";\n",
+            String stringCharacteristicCompetences = String.join("<br>",
                     competencesCharacteristic.stream().filter(competence -> errorIndexes.contains(competence.getIndex()))
                             .map(competence -> competence.getIndex().trim() + " " + competence.getName().trim()).toList());
 
@@ -283,7 +283,7 @@ public class CharacteristicComplianceStateChecker {
             }
         }
         if(!errorIndexes.isEmpty()){
-            String stringCharacteristicDisciplines = String.join(";\n",
+            String stringCharacteristicDisciplines = String.join("<br>",
                     disciplinesCharacteristic.stream().filter(discipline -> errorIndexes.contains(discipline.getIndex()))
                             .map(discipline -> discipline.getIndex().trim() + " " + discipline.getName().trim()).toList());
 

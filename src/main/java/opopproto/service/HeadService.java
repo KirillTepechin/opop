@@ -29,12 +29,10 @@ public class HeadService implements UserDetailsService {
                 .patronymic(patronymic)
                 .password(passwordEncoder.encode(password))
                 .login(login)
-                .documentsPath(documentsPath)
                 .build();
 
         return headRepository.save(head);
     }
-
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {

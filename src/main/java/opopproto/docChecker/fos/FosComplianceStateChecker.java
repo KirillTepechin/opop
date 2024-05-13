@@ -1,9 +1,12 @@
 package opopproto.docChecker.fos;
 
+import opopproto.data.characteristic.CharacteristicData;
 import opopproto.data.fos.Evaluate;
 import opopproto.data.fos.FosData;
 import opopproto.data.rpd.EvaluateCompetences;
 import opopproto.data.rpd.RpdData;
+import opopproto.data.syllabus.SyllabusData;
+import opopproto.domain.Competence;
 import opopproto.domain.Discipline;
 import opopproto.util.Documents;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,18 +24,22 @@ import java.util.regex.Pattern;
 public class FosComplianceStateChecker {
     @Autowired
     private Documents documents;
-    public List<String> check(List<FosData> fosDataList, List<RpdData> rpdDataList ){
+    public List<String> check(List<FosData> fosDataList, List<RpdData> rpdDataList,
+                              SyllabusData syllabusData, CharacteristicData characteristicData){
         List<String> fosErrors = new ArrayList<>();
         String selfFosErrors = checkSelf(fosDataList);
-        String fosRpdErrors = checkToRpd(fosDataList, rpdDataList);
+        String fosEvaluateRpdErrors = checkToRpd(fosDataList, rpdDataList);
+        String fosEvaluateOverallErrors = checkToSyllabusAndCharacteristic(fosDataList, syllabusData, characteristicData);
         String fosTitleErrors = checkTitle(fosDataList);
-
         if(selfFosErrors!=null)
             fosErrors.add(selfFosErrors);
-        if(fosRpdErrors!=null)
-            fosErrors.add(fosRpdErrors);
+        if(fosEvaluateRpdErrors!=null)
+            fosErrors.add(fosEvaluateRpdErrors);
+        if(fosEvaluateOverallErrors!=null)
+            fosErrors.add(fosEvaluateOverallErrors);
         if(fosTitleErrors!=null)
             fosErrors.add(fosTitleErrors);
+
 
         return fosErrors;
     }
@@ -99,7 +106,7 @@ public class FosComplianceStateChecker {
                     .flatMap(evaluate -> evaluate.getIndexesCompetences().stream()).distinct().toList().size();
 
             int rpdListSize = rpdData.getEvaluateCompetences().stream()
-                    .map(EvaluateCompetences::getIndexCompetence).toList().size();
+                    .map(EvaluateCompetences::getIdCompetence).toList().size();
 
             if(fosListSize>rpdListSize){
                 errors.add("Количество индикаторов в ФОС документе дисциплины '" + fosData.getFosName() +  "' больше количества индикаторов в РПД документе");
@@ -115,11 +122,22 @@ public class FosComplianceStateChecker {
                     try {
                         evaluateCompetencesRpd.stream()
                                 .filter(evaluateCompetence -> {
-                                    if(indexCompetence.split(" ").length!=2){
-                                        throw new IllegalArgumentException();
+                                    Pattern patternId = Pattern.compile("(ИД\\s*-\\s*\\d)");
+                                    Matcher matcherFos = patternId.matcher(indexCompetence);
+                                    String idFos = "";
+                                    String compFos = "";
+                                    if(matcherFos.find()){
+                                        idFos = matcherFos.group(1).trim();
+                                        compFos = indexCompetence.substring(idFos.length()).trim();
                                     }
-                                    boolean idEquals = evaluateCompetence.getIndexCompetence().split(" ")[0].equals(indexCompetence.split(" ")[0]);
-                                    boolean compEquals = evaluateCompetence.getCompetenceIndex().equals(indexCompetence.split(" ")[1]);
+                                    Matcher matcherRpd = patternId.matcher(evaluateCompetence.getIdCompetence());
+                                    String idRpd = "";
+                                    String compRpd = evaluateCompetence.getCompetenceIndex();
+                                    if(matcherRpd.find()){
+                                        idRpd = matcherRpd.group(1).trim();
+                                    }
+                                    boolean idEquals = idRpd.replaceAll(" ", "").equalsIgnoreCase(idFos.replaceAll(" ", ""));
+                                    boolean compEquals = compRpd.replaceAll(" ", "").equalsIgnoreCase(compFos.replaceAll(" ", ""));
                                     boolean typeEquals = evaluateCompetence.containsEvaluate(evaluate.getEvaluateType());
                                     return idEquals && compEquals && typeEquals;
 
@@ -140,7 +158,108 @@ public class FosComplianceStateChecker {
         }
 
         if(!errors.isEmpty()){
-            return "<b>Ошибки в таблице оценочных средств</b>.<br><br>"+ String.join("<br><br>",errors);
+            return "<b>Ошибки в таблице оценочных средств (Несоответствия с РПД)</b>.<br><br>"+ String.join("<br><br>",errors);
+        }
+        return null;
+    }
+    private String checkToSyllabusAndCharacteristic(List<FosData> fosDataList, SyllabusData syllabusData,
+                                                    CharacteristicData characteristicData){
+        List<String> evaluatesErrors = new ArrayList<>();
+        for (var fosData:fosDataList) {
+            List<Competence> syllabusDisciplineCompetences = syllabusData.getDisciplinesData().getAllDisciplines().stream()
+                    .filter(discipline -> (discipline.getIndex() + " " + discipline.getName())
+                            .equals(fosData.getFosName())).toList().get(0).getCompetences();
+
+            if(fosData.getEvaluates() == null){
+                evaluatesErrors.add("В ФОС документе '" + fosData.getFosName() + "' отсутствуют оценочные средства");
+                continue;
+            }
+            Pattern patternId = Pattern.compile("(ИД\\s*-\\s*\\d)");
+            int fosEvalCompSize = fosData.getEvaluates().stream()
+                    .flatMap(evaluate -> evaluate.getIndexesCompetences().stream())
+                    .map(string -> {
+                        Matcher matcher = patternId.matcher(string);
+                        if(matcher.find()){
+                            return string.substring(matcher.group(1).length()).trim().replaceAll(" ", "");
+                        }
+                        else {
+                            return null;
+                        }
+                    }).distinct().toList().size();
+
+
+            if(fosEvalCompSize > syllabusDisciplineCompetences.size()){
+                evaluatesErrors.add("В ФОС документе '" + fosData.getFosName() + "' количество компетенций больше чем в плане");
+            }
+            if(fosEvalCompSize < syllabusDisciplineCompetences.size()){
+                evaluatesErrors.add("В ФОС документе '" + fosData.getFosName() + "' количество компетенций меньше чем в плане");
+            }
+
+            for (var syllabusDisComp: syllabusDisciplineCompetences) {
+                var fosDisCompetences = fosData.getEvaluates().stream()
+                        .flatMap(evaluate -> evaluate.getIndexesCompetences().stream())
+                        .filter(str -> {
+                            Matcher matcher = patternId.matcher(str);
+                            if(matcher.find()){
+                                return str.substring(matcher.group(1).length()).trim().replaceAll(" ", "")
+                                        .equalsIgnoreCase(syllabusDisComp.getIndex().toUpperCase().replaceAll(" ", ""));
+                            }
+                            return false;
+                        }).distinct().toList();
+
+                if(fosDisCompetences.isEmpty()){
+                    evaluatesErrors.add("В ФОС документе '" + fosData.getFosName() +
+                            "' не найдена компетенция " + syllabusDisComp.getIndex());
+                    continue;
+                }
+                Competence characteristicDisComp;
+                try {
+                    List<Competence> characteristicCompetences = new ArrayList<>();
+                    characteristicCompetences.addAll(characteristicData.getTableData().getUCompetences());
+                    characteristicCompetences.addAll(characteristicData.getTableData().getPCompetences());
+                    characteristicCompetences.addAll(characteristicData.getTableData().getOpCompetences());
+
+                    characteristicDisComp = characteristicCompetences.stream()
+                            .filter(competence ->  {
+                                Matcher matcher = patternId.matcher(fosDisCompetences.get(0));
+                                if(matcher.find()){
+                                    return fosDisCompetences.get(0).substring(matcher.group(1).length()).trim().replaceAll(" ", "")
+                                            .equalsIgnoreCase(competence.getIndex().toUpperCase().replaceAll(" ", ""));
+                                }
+                                return false;
+                            }).toList().get(0);
+                }
+                catch (IndexOutOfBoundsException e){
+                    continue;
+                }
+                if(fosDisCompetences.size() > characteristicDisComp.getIds().size()){
+                    evaluatesErrors.add("В ФОС документе '" + fosData.getFosName() +
+                            "' количество индикаторов компетенции "+ characteristicDisComp.getIndex() +
+                            " больше чем в характеристике");
+                }
+                if(fosDisCompetences.size() < characteristicDisComp.getIds().size()){
+                    evaluatesErrors.add("В ФОС документе '" + fosData.getFosName() +
+                            "' количество индикаторов компетенции "+ characteristicDisComp.getIndex() +
+                            " меньше чем в характеристике");
+                }
+
+                for (var characteristicId: characteristicDisComp.getIds()) {
+                    try {
+                        fosDisCompetences.stream()
+                                .filter(id -> id.startsWith(characteristicId.getIndex())).toList().get(0);
+                    }
+                    catch (IndexOutOfBoundsException e){
+                        evaluatesErrors.add("В ФОС документе '" + fosData.getFosName() +
+                                "' не найден индикатор компетенции " + characteristicDisComp.getIndex() +
+                                " " + characteristicId.getIndex());
+                    }
+                }
+
+            }
+        }
+
+        if(!evaluatesErrors.isEmpty()){
+            return "<b>Ошибки в таблице оценочных средств (Несоответствия с планом и характеристикой)</b>.<br><br>"+ String.join("<br><br>",evaluatesErrors);
         }
         return null;
     }

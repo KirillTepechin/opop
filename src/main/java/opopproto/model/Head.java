@@ -1,9 +1,6 @@
 package opopproto.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,6 +11,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 @Entity
 @Data
@@ -28,12 +26,11 @@ public class Head implements UserDetails {
     private String name;
     private String surname;
     private String patronymic;
-
     private String login;
     private String password;
 
-    private String documentsPath;
-
+    @OneToMany(mappedBy = "head")
+    private List<GenerateResult> generateResults;
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return Collections.singleton(new SimpleGrantedAuthority("ROLE_HEAD"));

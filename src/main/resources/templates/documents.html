@@ -7,26 +7,22 @@
     <table class="table">
         <thead>
         <tr>
-            <th scope="col">Код</th>
             <th scope="col">Направление</th>
-            <th scope="col">Уровень образования</th>
-            <th scope="col">Образовательная программа</th>
+            <th scope="col">Профиль</th>
+            <th scope="col">Квалификация</th>
+            <th scope="col">Год</th>
             <th scope="col">Формы обучения</th>
-            <th scope="col">Учебный план</th>
-            <th scope="col">РПД</th>
-            <th scope="col">ФОС</th>
+            <th scope="col">Документы</th>
         </tr>
         </thead>
         <tbody>
-        <tr>
-            <th scope="row">09.03.04</th>
-            <td>Программная инженерия</td>
-            <td>Высшее образование - бакалавриат</td>
-            <td>Программная инженерия 2023 год</td>
-            <td>Очная</td>
-            <td><a href="">Файл.docx</a></td>
-            <td><a href="">Файл.docx</a></td>
-            <td><a href="">Файл.docx</a></td>
+        <tr th:each="genDto : ${genDtos}">
+            <td th:text="${genDto.specialty}"></td>
+            <td th:text="${genDto.profile}"></td>
+            <td th:text="${genDto.qualification}"></td>
+            <td th:text="${genDto.startYear}"></td>
+            <td th:text="${genDto.forms}"></td>
+            <td><a th:href="@{|/download/gen?uuid=${genDto.docUuid}|}" th:text="ОПОП.zip" ></a></td>
         </tr>
         </tbody>
     </table>

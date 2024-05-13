@@ -2,16 +2,13 @@ package opopproto.data.rpd;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import opopproto.data.fos.Evaluate;
 import opopproto.data.fos.EvaluateType;
 
 @Data
 @AllArgsConstructor
 public class EvaluateCompetences {
     private String competenceIndex;
-    private String indexCompetence;
+    private String idCompetence;
     private String evaluateName;
 
     public boolean containsEvaluate(EvaluateType evaluateType){

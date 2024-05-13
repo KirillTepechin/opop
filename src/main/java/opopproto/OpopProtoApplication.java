@@ -29,7 +29,6 @@ public class OpopProtoApplication implements CommandLineRunner {
 					.patronymic("Дмитриевич")
 					.password(passwordEncoder.encode("user1"))
 					.login("user1")
-					.documentsPath("/path")
 					.build();
 			headRepository.save(head);
 		}

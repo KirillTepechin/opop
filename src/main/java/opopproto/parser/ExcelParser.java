@@ -13,10 +13,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Component
 public class ExcelParser {
@@ -196,23 +193,34 @@ public class ExcelParser {
     private VolumeData parseVolume(Row row, boolean byChoice){
         int ind = 0;
         if(byChoice) ind = 1;
-        Map<Integer, String> semesterControlForm = new HashMap<>();
+        HashSet<Integer> semesters = new HashSet<>();
+        List<String> controlForm = new ArrayList<>();
         Cell ekzCell = row.getCell(6-ind);
         Cell zachetCell = row.getCell(8-ind);
         Cell zachetWithCell = row.getCell(10-ind);
         Cell kpCell = row.getCell(12-ind);
         Cell krCell = row.getCell(14-ind);
 
-        if(ekzCell != null && !ekzCell.getCellType().equals(CellType.BLANK))
-            semesterControlForm.put(Integer.parseInt(ekzCell.getStringCellValue()), "экзамен");
-        if(zachetCell != null && !zachetCell.getCellType().equals(CellType.BLANK))
-            semesterControlForm.put(Integer.parseInt(zachetCell.getStringCellValue()), "зачет");
-        if(zachetWithCell != null && !zachetWithCell.getCellType().equals(CellType.BLANK))
-            semesterControlForm.put(Integer.parseInt(zachetWithCell.getStringCellValue()), "зачет с оценкой");
-        if(kpCell != null && !kpCell.getCellType().equals(CellType.BLANK))
-            semesterControlForm.put(Integer.parseInt(kpCell.getStringCellValue()), "кп");
-        if(krCell != null && !krCell.getCellType().equals(CellType.BLANK))
-            semesterControlForm.put(Integer.parseInt(krCell.getStringCellValue()), "кр");
+        if(ekzCell != null && !ekzCell.getCellType().equals(CellType.BLANK)){
+            semesters.add(Integer.parseInt(ekzCell.getStringCellValue()));
+            controlForm.add("экзамен");
+        }
+        if(zachetCell != null && !zachetCell.getCellType().equals(CellType.BLANK)){
+            semesters.add(Integer.parseInt(zachetCell.getStringCellValue()));
+            controlForm.add("зачет");
+        }
+        if(zachetWithCell != null && !zachetWithCell.getCellType().equals(CellType.BLANK)){
+            semesters.add(Integer.parseInt(zachetWithCell.getStringCellValue()));
+            controlForm.add("зачет с оценкой");
+        }
+        if(kpCell != null && !kpCell.getCellType().equals(CellType.BLANK)){
+            semesters.add(Integer.parseInt(kpCell.getStringCellValue()));
+            controlForm.add("курсовой проект");
+        }
+        if(krCell != null && !krCell.getCellType().equals(CellType.BLANK)){
+            semesters.add(Integer.parseInt(krCell.getStringCellValue()));
+            controlForm.add("курсовая работа");
+        }
 
         VolumeTotal overallVolume = new VolumeTotal();
         overallVolume.setZeCount(Integer.parseInt(row.getCell(16-ind).getStringCellValue()));
@@ -225,7 +233,7 @@ public class ExcelParser {
         }
 
         List<VolumeSemester> volumeSemesters = new ArrayList<>();
-        if(semesterControlForm.containsKey(1)){
+        if(semesters.contains(1)){
             VolumeSemester volumeSemester1 = new VolumeSemester();
             if(!row.getCell(32-ind).getCellType().equals(CellType.BLANK))
                 volumeSemester1.setZeCount(Integer.parseInt(row.getCell(32-ind).getStringCellValue()));
@@ -243,7 +251,7 @@ public class ExcelParser {
             volumeSemester1.setSemester(1);
             volumeSemesters.add(volumeSemester1);
         }
-        if(semesterControlForm.containsKey(2)){
+        if(semesters.contains(2)){
             VolumeSemester volumeSemester2 = new VolumeSemester();
             if(!row.getCell(44-ind).getCellType().equals(CellType.BLANK))
                 volumeSemester2.setZeCount(Integer.parseInt(row.getCell(44-ind).getStringCellValue()));
@@ -261,7 +269,7 @@ public class ExcelParser {
             volumeSemester2.setSemester(2);
             volumeSemesters.add(volumeSemester2);
         }
-        if(semesterControlForm.containsKey(3)){
+        if(semesters.contains(3)){
             VolumeSemester volumeSemester3 = new VolumeSemester();
             if(!row.getCell(56-ind).getCellType().equals(CellType.BLANK))
                 volumeSemester3.setZeCount(Integer.parseInt(row.getCell(56-ind).getStringCellValue()));
@@ -277,7 +285,7 @@ public class ExcelParser {
             volumeSemester3.setSemester(3);
             volumeSemesters.add(volumeSemester3);
         }
-        if(semesterControlForm.containsKey(4)){
+        if(semesters.contains(4)){
             VolumeSemester volumeSemester4 = new VolumeSemester();
             if(!row.getCell(66-ind).getCellType().equals(CellType.BLANK))
                 volumeSemester4.setZeCount(Integer.parseInt(row.getCell(66-ind).getStringCellValue()));
@@ -290,7 +298,8 @@ public class ExcelParser {
             volumeSemesters.add(volumeSemester4);
         }
         VolumeData volumeData = new VolumeData();
-        volumeData.setSemesterControlForm(semesterControlForm);
+        volumeData.setSemesters(semesters);
+        volumeData.setControlForm(controlForm);
         volumeData.setOverallVolume(overallVolume);
         volumeData.setVolumesBySemester(volumeSemesters);
 

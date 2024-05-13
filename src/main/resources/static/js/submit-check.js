@@ -149,7 +149,7 @@ function createComplianceError(errors, errorType){
         link1.classList.add('dropdown-item');
         link1.setAttribute('href', '#');
         link1.innerHTML = error;
-        link1.style = 'text-wrap: pretty;'
+        link1.style = 'text-wrap: pretty'
 
         listItem1.appendChild(link1);
 
@@ -183,7 +183,7 @@ function handleFileSelect(event) {
     const formData = new FormData();
     formData.append('file', file);
 
-    fetch('http://localhost:8080/upload-documents', {
+    fetch('http://localhost:8080/opop/check-documents', {
         method: 'POST',
         body: formData
     })
@@ -192,6 +192,7 @@ function handleFileSelect(event) {
       })
       .then(function (data) {
         console.log(data)
+        fileInput.value=''
         analyseDiv.style.cssText = "display: none !important;";
 
         if (!data.valid){

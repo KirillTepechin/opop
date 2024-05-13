@@ -25,9 +25,9 @@ public class SyllabusData {
     public List<Competence> getOpCompetences(){
         return competences.stream().filter(competence -> competence.getIndex().trim().startsWith("ОПК-")).toList();
     }
+    //TODO:Проверит все ли норм
     public List<Competence> getPCompetences(){
         return competences.stream().filter(competence -> competence.getIndex().trim()
                 .matches("(УКи-\\d+|ОПКи-\\d+|ПК-\\d+)*")).toList();
-
     }
 }

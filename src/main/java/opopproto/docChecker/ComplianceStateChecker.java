@@ -26,6 +26,8 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static org.apache.commons.compress.utils.FileNameUtils.getExtension;
+
 @Component
 public class ComplianceStateChecker {
     @Autowired
@@ -77,24 +79,18 @@ public class ComplianceStateChecker {
         List<String> fosErrors = new ArrayList<>();
         if(namingErrorFos!=null)
             fosErrors.add(namingErrorFos);
-        fosErrors.addAll(fosComplianceStateChecker.check(fosDataList, rpdDataList));
+        fosErrors.addAll(fosComplianceStateChecker.check(fosDataList, rpdDataList, syllabusData, characteristicData));
         complianceState.setFosErrors(fosErrors);
 
         //TODO:Чек ошибок РПД
         List<String> rpdErrors = new ArrayList<>();
         if(namingErrorRpd!=null)
             rpdErrors.add(namingErrorRpd);
-        rpdErrors.addAll(rpdComplianceStateChecker.check(rpdDataList, syllabusData));
+        rpdErrors.addAll(rpdComplianceStateChecker.check(rpdDataList, syllabusData, characteristicData));
         complianceState.setRpdErrors(rpdErrors);
 
         return complianceState;
     }
 
-
-    private String getExtension(String filename) {
-        return Optional.ofNullable(filename)
-                .filter(f -> f.contains("."))
-                .map(f -> f.substring(filename.lastIndexOf(".") + 1)).get();
-    }
 
 }
