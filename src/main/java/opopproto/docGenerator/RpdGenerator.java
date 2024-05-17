@@ -1,13 +1,21 @@
 package opopproto.docGenerator;
 
 import opopproto.data.syllabus.SyllabusData;
-import opopproto.domain.*;
+import opopproto.domain.Competence;
+import opopproto.domain.Discipline;
+import opopproto.domain.VolumeSemester;
 import org.apache.commons.io.FileUtils;
-import org.apache.poi.xwpf.usermodel.*;
-import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTHMerge;
+import org.apache.poi.xwpf.usermodel.ParagraphAlignment;
+import org.apache.poi.xwpf.usermodel.UnderlinePatterns;
+import org.apache.poi.xwpf.usermodel.VerticalAlign;
+import org.apache.poi.xwpf.usermodel.XWPFDocument;
+import org.apache.poi.xwpf.usermodel.XWPFParagraph;
+import org.apache.poi.xwpf.usermodel.XWPFRun;
+import org.apache.poi.xwpf.usermodel.XWPFTable;
+import org.apache.poi.xwpf.usermodel.XWPFTableCell;
+import org.apache.poi.xwpf.usermodel.XWPFTableRow;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTVMerge;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.STMerge;
-import org.openxmlformats.schemas.wordprocessingml.x2006.main.STVerticalJc;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -15,7 +23,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
-import java.util.Arrays;
 import java.util.List;
 
 @Component
@@ -227,29 +234,6 @@ public class RpdGenerator extends AbstractGenerator{
         }
 
         document.close();
-    }
-
-    private void replaceTextInParagraph(XWPFParagraph paragraph, String originalText, String updatedText) {
-        String paragraphText = paragraph.getParagraphText();
-        if (paragraphText.contains(originalText)) {
-            String updatedParagraphText = paragraphText.replace(originalText, updatedText);
-            while (!paragraph.getRuns().isEmpty()) {
-                paragraph.removeRun(0);
-            }
-            XWPFRun newRun = paragraph.createRun();
-            newRun.setText(updatedParagraphText);
-        }
-    }
-
-    private String getLevelByQualification(String qualification){
-        if(qualification.equalsIgnoreCase("магистр")){
-            return "магистратура";
-        } else if (qualification.equalsIgnoreCase("бакалавр")) {
-            return "бакалавриат";
-        }
-        else {
-            throw new IllegalArgumentException();
-        }
     }
 
     private static void setCellText(XWPFTableCell cell, String text) {

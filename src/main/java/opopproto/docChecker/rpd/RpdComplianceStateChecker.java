@@ -153,7 +153,7 @@ public class RpdComplianceStateChecker {
                             .toList().get(0);
                 }
                 catch (IndexOutOfBoundsException e){
-                    tableErrors.add("Не найден обьем дисциплины в "  + volumeSemesterS.getSemester() + " семестре");
+                    tableErrors.add("Не найден или некорректно составлен обьем дисциплины в "  + volumeSemesterS.getSemester() + " семестре");
                     continue;
                 }
                 if(volumeSemesterS.getContactWork()!=0){
@@ -263,7 +263,7 @@ public class RpdComplianceStateChecker {
                             .equals(rpdData.getRpdName())).toList().get(0).getCompetences();
 
             if(rpdData.getCompetences() == null){
-                competencesErrors.add("В РПД документе '" + rpdData.getRpdName() + "' отсутствуют компетенции");
+                competencesErrors.add("В РПД документе '" + rpdData.getRpdName() + "' отсутствуют или некорректно составлены компетенции");
                 continue;
             }
 
@@ -481,7 +481,7 @@ public class RpdComplianceStateChecker {
         for (var rpdData: rpdDataList) {
             AppendixData appendixData = rpdData.getAppendixData();
             if(appendixData==null){
-                appendixErrors.add("В РПД документе '" + rpdData.getRpdName() + "' не найдено Приложение А");
+                appendixErrors.add("В РПД документе '" + rpdData.getRpdName() + "' не найдено или некорректно составлено Приложение А");
                 continue;
             }
             Discipline syllabusRpdDiscipline = syllabusData.getDisciplinesData().getAllDisciplines().stream()

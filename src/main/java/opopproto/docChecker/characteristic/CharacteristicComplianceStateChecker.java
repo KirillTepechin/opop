@@ -29,101 +29,174 @@ public class CharacteristicComplianceStateChecker {
                                                  CharacteristicData characteristicData){
         List<String> characteristicErrors = new ArrayList<>();
         //Проверка табличных данных характеристики
+
         CharacteristicTableData characteristicTableData = characteristicData.getTableData();
         String speciality = syllabusData.getSyllabusTitle().getSpecialty().trim().toLowerCase();
-        if(!characteristicTableData.getPoopContainsSpecialty().trim().toLowerCase().contains(speciality)){
+        try {
+            if(!characteristicTableData.getPoopContainsSpecialty().trim().toLowerCase().contains(speciality)){
+                characteristicErrors.add("<b>Не указано или неправильно указано направление в перечне сокращений. Строка 'ПООП'</b>");
+            }
+        }
+        catch (NullPointerException e){
             characteristicErrors.add("<b>Не указано или неправильно указано направление в перечне сокращений. Строка 'ПООП'</b>");
         }
-        if(!characteristicTableData.getFgosContainsSpecialty().trim().toLowerCase().contains(speciality)){
+        try {
+            if(!characteristicTableData.getFgosContainsSpecialty().trim().toLowerCase().contains(speciality)){
+                characteristicErrors.add("<b>Не указано или неправильно указано направление в перечне сокращений. Строка 'ФГОС ВО'</b>");
+            }
+        }
+        catch (NullPointerException e){
             characteristicErrors.add("<b>Не указано или неправильно указано направление в перечне сокращений. Строка 'ФГОС ВО'</b>");
         }
+
         //Проверка типов задач
-        if(!prettyListString(characteristicTableData.getTaskTypes()).equals(prettyListString(syllabusData.getSyllabusTitle().getTaskTypes()))){
+        try {
+            if(!prettyListString(characteristicTableData.getTaskTypes()).equals(prettyListString(syllabusData.getSyllabusTitle().getTaskTypes()))){
 
-            String stringSyllabusTaskTypes = String.join(", ", prettyListString(syllabusData.getSyllabusTitle().getTaskTypes()));
-            String stringCharacteristicTaskTypes = String.join(", ", prettyListString(characteristicTableData.getTaskTypes()));
+                String stringSyllabusTaskTypes = String.join(", ", prettyListString(syllabusData.getSyllabusTitle().getTaskTypes()));
+                String stringCharacteristicTaskTypes = String.join(", ", prettyListString(characteristicTableData.getTaskTypes()));
 
-            characteristicErrors.add("<b>Информация о типах задач несовпадает.</b> Типы задач в учебном плане: " +
-                    stringSyllabusTaskTypes + ". Типы задач в характеристике: "+ stringCharacteristicTaskTypes);
+                characteristicErrors.add("<b>Информация о типах задач не совпадает.</b> Типы задач в учебном плане: " +
+                        stringSyllabusTaskTypes + ". Типы задач в характеристике: "+ stringCharacteristicTaskTypes);
+            }
         }
+        catch (Exception e){
+            characteristicErrors.add("<b>Ошибка при парсинге типов задач в характеристике.</b>");
+        }
+
         //Проверка ун компетенций
-        String error = checkCharacteristicCompetences(characteristicTableData.getUCompetences(), syllabusData.getUCompetences());
-        if(error!=null){
-            characteristicErrors.add("<b>Ошибка в таблице универсальных компетенций.</b><br>"+error);
+        try {
+            String error = checkCharacteristicCompetences(characteristicTableData.getUCompetences(), syllabusData.getUCompetences());
+            if(error!=null){
+                characteristicErrors.add("<b>Ошибка в таблице универсальных компетенций.</b><br>"+error);
+            }
+        }
+        catch (Exception e){
+            characteristicErrors.add("<b>Ошибка парсинга в таблице универсальных компетенций.</b>");
         }
         //Проверка общ проф компетенций
-        error = checkCharacteristicCompetences(characteristicTableData.getOpCompetences(), syllabusData.getOpCompetences());
-        if(error!=null){
-            characteristicErrors.add("<b>Ошибка в таблице профессиональных компетенций.</b><br>"+error);
+        try {
+            String error = checkCharacteristicCompetences(characteristicTableData.getOpCompetences(), syllabusData.getOpCompetences());
+            if(error!=null){
+                characteristicErrors.add("<b>Ошибка в таблице профессиональных компетенций.</b><br>"+error);
+            }
         }
-        //Проверка проф компетенций
-        error = checkCharacteristicCompetences(characteristicTableData.getPCompetences(), syllabusData.getPCompetences());
-        if(error!=null){
-            characteristicErrors.add("<b>Ошибка в таблице общепрофессиональных компетенций.</b><br>"+error);
+        catch (Exception e){
+            characteristicErrors.add("<b>Ошибка парсинга в таблице профессиональных компетенций.</b>");
         }
+
+        try {
+            //Проверка проф компетенций
+            String error = checkCharacteristicCompetences(characteristicTableData.getPCompetences(), syllabusData.getPCompetences());
+            if(error!=null){
+                characteristicErrors.add("<b>Ошибка в таблице общепрофессиональных компетенций.</b><br>"+error);
+            }
+        }
+        catch (Exception e){
+            characteristicErrors.add("<b>Ошибка парсинга в таблице общепрофессиональных компетенций.</b>");
+        }
+
         //Проверка матрицы соответствия
-        error = checkCharacteristicMatrix(characteristicTableData.getMatrixCompetenceDisciplines(), syllabusData.getCompetences());
-        if(error!=null){
-            characteristicErrors.add("<b>Ошибка в матрице соответствия компетенций и элементов учебного плана.</b><br>" + error);
+        try {
+            String error = checkCharacteristicMatrix(characteristicTableData.getMatrixCompetenceDisciplines(), syllabusData.getCompetences());
+            if(error!=null){
+                characteristicErrors.add("<b>Ошибка в матрице соответствия компетенций и элементов учебного плана.</b><br>" + error);
+            }
         }
+        catch (Exception e){
+            characteristicErrors.add("<b>Ошибка парсинга в матрице соответствия компетенций и элементов учебного плана.</b>");
+        }
+
         //Проверка обяз дисциплин
-        error = checkCharacteristicDisciplines(characteristicTableData.getBaseDisciplines(), syllabusData.getDisciplinesData().getBaseDisciplines());
-        if(error!=null){
-            characteristicErrors.add("<b>Ошибка в таблице обязательных дисциплин.</b><br>"+error);
+        try {
+            String error = checkCharacteristicDisciplines(characteristicTableData.getBaseDisciplines(), syllabusData.getDisciplinesData().getBaseDisciplines());
+            if(error!=null){
+                characteristicErrors.add("<b>Ошибка в таблице обязательных дисциплин.</b><br>"+error);
+            }
         }
+        catch (Exception e){
+            characteristicErrors.add("<b>Ошибка парсинга в таблице обязательных дисциплин.</b>");
+        }
+
         //Проверка вар дисциплин
-        error = checkCharacteristicDisciplines(characteristicTableData.getVaryDisciplines(), syllabusData.getDisciplinesData().getVaryDisciplines());
-        if(error!=null){
-            characteristicErrors.add("<b>Ошибка в таблице вариативных дисциплин.</b><br>"+error);
+        try {
+            String error = checkCharacteristicDisciplines(characteristicTableData.getVaryDisciplines(), syllabusData.getDisciplinesData().getVaryDisciplines());
+            if(error!=null){
+                characteristicErrors.add("<b>Ошибка в таблице вариативных дисциплин.</b><br>"+error);
+            }
         }
+        catch (Exception e){
+            characteristicErrors.add("<b>Ошибка парсинга таблице вариативных дисциплин.</b>");
+        }
+
         //Проверка факультативов
-        error = checkCharacteristicDisciplines(characteristicTableData.getFacDisciplines(), syllabusData.getDisciplinesData().getBlock4DisciplineList());
-        if(error!=null){
-            characteristicErrors.add("<b>Ошибка в таблице факультативов.</b><br>"+error);
+        try {
+            String error = checkCharacteristicDisciplines(characteristicTableData.getFacDisciplines(), syllabusData.getDisciplinesData().getBlock4DisciplineList());
+            if(error!=null){
+                characteristicErrors.add("<b>Ошибка в таблице факультативов.</b><br>"+error);
+            }
+        }
+        catch (Exception e){
+            characteristicErrors.add("<b>Ошибка парсинга в таблице факультативов.</b>");
         }
 
         //Проверка приложения А
         List<Standard> standardsASyllabus = syllabusData.getSyllabusTitle().getProfessionalAreas()
                 .stream().map(ProfessionalArea::getStandards).toList().stream().flatMap(List::stream)
                 .toList();
-        List<Standard> standardsACharacteristic = characteristicTableData.getAppendixAData();
-        error = checkCharacteristicAppendixA(standardsACharacteristic, standardsASyllabus);
-        if(error!=null){
-            characteristicErrors.add("<b>Ошибка в таблице Приложении А.</b><br>"+error);
+        try {
+            List<Standard> standardsACharacteristic = characteristicTableData.getAppendixAData();
+            String error = checkCharacteristicAppendixA(standardsACharacteristic, standardsASyllabus);
+            if(error!=null){
+                characteristicErrors.add("<b>Ошибка в таблице Приложении А.</b><br>"+error);
+            }
+        }
+        catch (Exception e){
+            characteristicErrors.add("<b>Ошибка парсинга в таблице Приложении А.</b>");
         }
 
         //Проверка приложения Б
-        List<Standard> standards = syllabusData.getSyllabusTitle().getProfessionalAreas()
-                .stream().map(ProfessionalArea::getStandards).flatMap(List::stream).toList();
-        List<Standard> standardsBSyllabusByCompetences = syllabusData.getCompetences().stream()
-                .map(Competence::getStandards).flatMap(List::stream).toList();
+        try {
+            List<Standard> standards = syllabusData.getSyllabusTitle().getProfessionalAreas()
+                    .stream().map(ProfessionalArea::getStandards).flatMap(List::stream).toList();
+            List<Standard> standardsBSyllabusByCompetences = syllabusData.getCompetences().stream()
+                    .map(Competence::getStandards).flatMap(List::stream).toList();
 
-        List<Standard> standardsBSyllabus = standards.stream().peek(standard -> standardsBSyllabusByCompetences.forEach(standardByComp -> {
-            if (standard.getCode().equals(standardByComp.getCode())) {
-                if(standard.getLaborFunction()==null){
-                    standard.setLaborFunction(standardByComp.getLaborFunction());
+            List<Standard> standardsBSyllabus = standards.stream().peek(standard -> standardsBSyllabusByCompetences.forEach(standardByComp -> {
+                if (standard.getCode().equals(standardByComp.getCode())) {
+                    if(standard.getLaborFunction()==null){
+                        standard.setLaborFunction(standardByComp.getLaborFunction());
+                    }
+                    standard.getLaborFunction().getLaborFunctions().addAll(standardByComp.getLaborFunction().getLaborFunctions());
                 }
-                standard.getLaborFunction().getLaborFunctions().addAll(standardByComp.getLaborFunction().getLaborFunctions());
+            })).toList();
+            List<Standard> standardsBCharacteristic = characteristicTableData.getAppendixBData();
+            String error = checkCharacteristicAppendixB(standardsBCharacteristic, standardsBSyllabus);
+            if(error!=null){
+                characteristicErrors.add("<b>Ошибка в таблице Приложении Б.</b><br>"+error);
             }
-        })).toList();
-        List<Standard> standardsBCharacteristic = characteristicTableData.getAppendixBData();
-        error = checkCharacteristicAppendixB(standardsBCharacteristic, standardsBSyllabus);
-        if(error!=null){
-            characteristicErrors.add("<b>Ошибка в таблице Приложении Б.</b><br>"+error);
+        }
+        catch (Exception e){
+            characteristicErrors.add("<b>Ошибка парсинга в таблице Приложении Б.</b>");
         }
 
         //Проверка соответствия компетенций и типов задач профессиональной деятельности
         //Проверка тип задач - стандарты
-        error = checkTaskTypesStandards(syllabusData.getSyllabusTitle().getTaskTypes(), standardsASyllabus,
-                characteristicTableData.getTaskTypesStandards());
-        if(error!=null){
-            characteristicErrors.add("<b>Ошибка в таблице соответствия компетенций и типов задач профессиональной деятельности.</b><br>"+error);
+        try {
+            String error = checkTaskTypesStandards(syllabusData.getSyllabusTitle().getTaskTypes(), standardsASyllabus,
+                    characteristicTableData.getTaskTypesStandards());
+            if(error!=null){
+                characteristicErrors.add("<b>Ошибка в таблице соответствия компетенций и типов задач профессиональной деятельности.</b><br>"+error);
+            }
+            //Проверка тип задач - компетенции
+            error = checkTaskTypesCompetences(syllabusData.getSyllabusTitle().getTaskTypes(), syllabusData.getPCompetences(),
+                    characteristicTableData.getPCompetencesTaskTypes());
+            if(error!=null){
+                characteristicErrors.add("<b>Ошибка в таблице соответствия компетенций и типов задач профессиональной деятельности.</b><br>"+error);
+            }
         }
-        //Проверка тип задач - компетенции
-        error = checkTaskTypesCompetences(syllabusData.getSyllabusTitle().getTaskTypes(), syllabusData.getPCompetences(),
-                characteristicTableData.getPCompetencesTaskTypes());
-        if(error!=null){
-            characteristicErrors.add("<b>Ошибка в таблице соответствия компетенций и типов задач профессиональной деятельности.</b><br>"+error);
+        catch (Exception e){
+            characteristicErrors.add("<b>Ошибка парсинга в таблице соответствия компетенций и типов задач профессиональной деятельности.</b>");
         }
 
         //Проверка текстовых данных характеристики
@@ -132,86 +205,217 @@ public class CharacteristicComplianceStateChecker {
         String qualification = syllabusData.getSyllabusTitle().getQualification().trim().toLowerCase();
         String educationForm = syllabusData.getSyllabusTitle().getEducationForm().trim().toLowerCase();
         String fgos = syllabusData.getSyllabusTitle().getFgos().trim().toLowerCase();
-        if(!speciality.equals(characteristicParagraphData.getTitleEqualsSpeciality().trim().toLowerCase())){
-            characteristicErrors.add("В титульном листе не указано/неправильно указано направление подготовки");
-        }
-        if(!profile.equals(characteristicParagraphData.getTitleEqualsProfile().trim().toLowerCase())){
-            characteristicErrors.add("В титульном листе не указана/неправильно указана программа подготовки");
-        }
-        if(!qualification.equals(characteristicParagraphData.getTitleEqualsQualification().trim().toLowerCase())){
-            characteristicErrors.add("В титульном листе не указана/неправильно указана квалификация");
-        }
-        if(!educationForm.equals(characteristicParagraphData.getTitleEqualsEducationForm().trim().toLowerCase())){
-            characteristicErrors.add("В титульном листе не указана/неправильно указана форма/ы обучения");
-        }
-        if(!characteristicParagraphData.getTitleContainsProfile().trim().toLowerCase().contains(profile)){
-            characteristicErrors.add("В титульном листе (стр.2) не указана/неправильно указана программа подготовки");
-        }
-        if(!characteristicParagraphData.getTitleContainsSpeciality().trim().toLowerCase().contains(speciality)){
-            characteristicErrors.add("В титульном листе (стр.2) не указано/неправильно указано направление подготовки");
-        }
-        if(!characteristicParagraphData.getSection11ContainsSpeciality().trim().toLowerCase().contains(speciality)){
-            characteristicErrors.add("В разделе 1.1 не указано/неправильно указано направление подготовки");
-        }
-        if(!characteristicParagraphData.getSection12ContainsSpeciality().trim().toLowerCase().contains(speciality)){
-            characteristicErrors.add("В разделе 1.2 не указано/неправильно указано направление подготовки");
-        }
-        if(!getNumberFgos(fgos).equals(getNumberFgos(characteristicParagraphData.getSection12ContainsFgos().trim().toLowerCase()))){
-            characteristicErrors.add("В разделе 1.2 не указан/неправильно указан ФГОС");
-        }
-        if(!new HashSet<>(prettyListString(characteristicParagraphData.getSection21ListOfTaskTypes()))
-                .containsAll(prettyListString(syllabusData.getSyllabusTitle().getTaskTypes()))){
-            characteristicErrors.add("В разделе 2.1 не указаны/неправильно указаны типы задач профессиональной деятельности");
-        }
-        if(!characteristicParagraphData.getSection22ContainsSpeciality().trim().toLowerCase().contains(speciality)){
-            characteristicErrors.add("В разделе 2.2 не указано/неправильно указано направление подготовки");
-        }
-        if(!characteristicParagraphData.getSection31ContainsSpeciality().trim().toLowerCase().contains(speciality)){
-            characteristicErrors.add("В разделе 3.1 не указано/неправильно указано направление подготовки");
-        }
-        if(!characteristicParagraphData.getSection31ContainsProfile().trim().toLowerCase().contains(profile)){
-            characteristicErrors.add("В разделе 3.1 не указана/неправильно указана программа подготовки");
-        }
-        for (var taskType:syllabusData.getSyllabusTitle().getTaskTypes()) {
-            if(!characteristicParagraphData.getSection31ContainsAllTaskTypes().contains(taskType)){
-                characteristicErrors.add("В разделе 3.1 не указаны/неправильно указаны типы задач профессиональной деятельности");
-                break;
+
+        try {
+            if(!speciality.equals(characteristicParagraphData.getTitleEqualsSpeciality().trim().toLowerCase())){
+                characteristicErrors.add("В титульном листе не указано/неправильно указано направление подготовки");
             }
         }
-        if(!characteristicParagraphData.getSection32ContainsQualification().trim().toLowerCase().contains(qualification)){
+        catch (NullPointerException e){
+            characteristicErrors.add("В титульном листе не указано/неправильно указано направление подготовки");
+        }
+        try {
+            if(!profile.equals(characteristicParagraphData.getTitleEqualsProfile().trim().toLowerCase())){
+                characteristicErrors.add("В титульном листе не указана/неправильно указана программа подготовки");
+            }
+        }
+        catch (NullPointerException e){
+            characteristicErrors.add("В титульном листе не указана/неправильно указана программа подготовки");
+        }
+
+        try {
+            if(!qualification.equals(characteristicParagraphData.getTitleEqualsQualification().trim().toLowerCase())){
+                characteristicErrors.add("В титульном листе не указана/неправильно указана квалификация");
+            }
+        }
+        catch (NullPointerException e){
+            characteristicErrors.add("В титульном листе не указана/неправильно указана квалификация");
+        }
+
+        try {
+            if(!educationForm.equals(characteristicParagraphData.getTitleEqualsEducationForm().trim().toLowerCase())){
+                characteristicErrors.add("В титульном листе не указана/неправильно указана форма/ы обучения");
+            }
+        }
+        catch (NullPointerException e){
+            characteristicErrors.add("В титульном листе не указана/неправильно указана форма/ы обучения");
+        }
+
+        try {
+            if(!characteristicParagraphData.getTitleContainsProfile().trim().toLowerCase().contains(profile)){
+                characteristicErrors.add("В титульном листе (стр.2) не указана/неправильно указана программа подготовки");
+            }
+        }
+        catch (NullPointerException e){
+            characteristicErrors.add("В титульном листе (стр.2) не указана/неправильно указана программа подготовки");
+        }
+
+        try {
+            if(!characteristicParagraphData.getTitleContainsSpeciality().trim().toLowerCase().contains(speciality)){
+                characteristicErrors.add("В титульном листе (стр.2) не указано/неправильно указано направление подготовки");
+            }
+        }
+        catch (NullPointerException e){
+            characteristicErrors.add("В титульном листе (стр.2) не указано/неправильно указано направление подготовки");
+        }
+
+        try {
+            if(!characteristicParagraphData.getSection11ContainsSpeciality().trim().toLowerCase().contains(speciality)){
+                characteristicErrors.add("В разделе 1.1 не указано/неправильно указано направление подготовки");
+            }
+        }
+        catch (NullPointerException e){
+            characteristicErrors.add("В разделе 1.1 не указано/неправильно указано направление подготовки");
+        }
+
+        try {
+            if(!characteristicParagraphData.getSection12ContainsSpeciality().trim().toLowerCase().contains(speciality)){
+                characteristicErrors.add("В разделе 1.2 не указано/неправильно указано направление подготовки");
+            }
+        }
+        catch (NullPointerException e){
+            characteristicErrors.add("В разделе 1.2 не указано/неправильно указано направление подготовки");
+        }
+
+        try {
+            if(!getNumberFgos(fgos).equals(getNumberFgos(characteristicParagraphData.getSection12ContainsFgos().trim().toLowerCase()))){
+                characteristicErrors.add("В разделе 1.2 не указан/неправильно указан ФГОС");
+            }
+        }
+        catch (NullPointerException e){
+            characteristicErrors.add("В разделе 1.2 не указан/неправильно указан ФГОС");
+        }
+
+        try {
+            if(!new HashSet<>(prettyListString(characteristicParagraphData.getSection21ListOfTaskTypes()))
+                    .containsAll(prettyListString(syllabusData.getSyllabusTitle().getTaskTypes()))){
+                characteristicErrors.add("В разделе 2.1 не указаны/неправильно указаны типы задач профессиональной деятельности");
+            }
+        }
+        catch (NullPointerException e){
+            characteristicErrors.add("В разделе 2.1 не указаны/неправильно указаны типы задач профессиональной деятельности");
+        }
+
+        try {
+            if(!characteristicParagraphData.getSection22ContainsSpeciality().trim().toLowerCase().contains(speciality)){
+                characteristicErrors.add("В разделе 2.2 не указано/неправильно указано направление подготовки");
+            }
+        }
+        catch (NullPointerException e){
+            characteristicErrors.add("В разделе 2.2 не указано/неправильно указано направление подготовки");
+        }
+        try {
+            if(!characteristicParagraphData.getSection31ContainsSpeciality().trim().toLowerCase().contains(speciality)){
+                characteristicErrors.add("В разделе 3.1 не указано/неправильно указано направление подготовки");
+            }
+        }
+        catch (NullPointerException e){
+            characteristicErrors.add("В разделе 3.1 не указано/неправильно указано направление подготовки");
+        }
+
+        try {
+            if(!characteristicParagraphData.getSection31ContainsProfile().trim().toLowerCase().contains(profile)){
+                characteristicErrors.add("В разделе 3.1 не указана/неправильно указана программа подготовки");
+            }
+        }
+        catch (NullPointerException e){
+            characteristicErrors.add("В разделе 3.1 не указана/неправильно указана программа подготовки");
+        }
+        try {
+            for (var taskType:syllabusData.getSyllabusTitle().getTaskTypes()) {
+                if(!characteristicParagraphData.getSection31ContainsAllTaskTypes().contains(taskType)){
+                    characteristicErrors.add("В разделе 3.1 не указаны/неправильно указаны типы задач профессиональной деятельности");
+                    break;
+                }
+            }
+        }
+        catch (NullPointerException e){
+            characteristicErrors.add("В разделе 3.1 не указаны/неправильно указаны типы задач профессиональной деятельности");
+        }
+
+        try {
+            if(!characteristicParagraphData.getSection32ContainsQualification().trim().toLowerCase().contains(qualification)){
+                characteristicErrors.add("В разделе 3.2 не указана/неправильно указана квалификация");
+            }
+        }
+        catch (NullPointerException e){
             characteristicErrors.add("В разделе 3.2 не указана/неправильно указана квалификация");
         }
-        if(!characteristicParagraphData.getSection34ContainsEducationForm().trim().toLowerCase().contains(educationForm)){
+
+        try {
+            if(!characteristicParagraphData.getSection34ContainsEducationForm().trim().toLowerCase().contains(educationForm)){
+                characteristicErrors.add("В разделе 3.4 не указана/неправильно указана форма/ы обучения");
+            }
+        }
+        catch (NullPointerException e){
             characteristicErrors.add("В разделе 3.4 не указана/неправильно указана форма/ы обучения");
         }
-        if(!characteristicParagraphData.getSection541ContainsProfile().trim().toLowerCase().contains(profile)){
+
+        try {
+            if(!characteristicParagraphData.getSection541ContainsProfile().trim().toLowerCase().contains(profile)){
+                characteristicErrors.add("В разделе 5.4.1 не указана/неправильно указана программа подготовки");
+            }
+        }
+        catch (NullPointerException e){
             characteristicErrors.add("В разделе 5.4.1 не указана/неправильно указана программа подготовки");
         }
-        if(!characteristicParagraphData.getSection541ContainsSpeciality().trim().toLowerCase().contains(speciality)){
-            characteristicErrors.add("В разделе 5.4.1 не указано/неправильно указано направление подготовки");
+
+        try {
+            if(!characteristicParagraphData.getSection545ContainsSpeciality().trim().toLowerCase().contains(speciality)){
+                characteristicErrors.add("В разделе 5.4.5 не указано/неправильно указано направление подготовки");
+            }
         }
-        if(!characteristicParagraphData.getSection545ContainsSpeciality().trim().toLowerCase().contains(speciality)){
+        catch (NullPointerException e){
             characteristicErrors.add("В разделе 5.4.5 не указано/неправильно указано направление подготовки");
         }
-        if(!characteristicParagraphData.getAppendixAContainsSpeciality().trim().toLowerCase().contains(speciality)){
+
+        try {
+            if(!characteristicParagraphData.getAppendixAContainsSpeciality().trim().toLowerCase().contains(speciality)){
+                characteristicErrors.add("В Приложении А не указано/неправильно указано направление подготовки");
+            }
+        }
+        catch (NullPointerException e){
             characteristicErrors.add("В Приложении А не указано/неправильно указано направление подготовки");
         }
-        if(!characteristicParagraphData.getAppendixAContainsProfile().trim().toLowerCase().contains(profile)){
+
+        try {
+            if(!characteristicParagraphData.getAppendixAContainsProfile().trim().toLowerCase().contains(profile)){
+                characteristicErrors.add("В Приложении А не указана/неправильно указана программа подготовки");
+            }
+        }
+        catch (NullPointerException e){
             characteristicErrors.add("В Приложении А не указана/неправильно указана программа подготовки");
         }
-        if(!characteristicParagraphData.getAppendixBContainsSpeciality().trim().toLowerCase().contains(speciality)){
+
+        try {
+            if(!characteristicParagraphData.getAppendixBContainsSpeciality().trim().toLowerCase().contains(speciality)){
+                characteristicErrors.add("В Приложении Б не указано/неправильно указано направление подготовки");
+            }
+        }
+        catch (NullPointerException e){
             characteristicErrors.add("В Приложении Б не указано/неправильно указано направление подготовки");
         }
-        if(!characteristicParagraphData.getAppendixBContainsProfile().trim().toLowerCase().contains(profile)){
+        try {
+            if(!characteristicParagraphData.getAppendixBContainsProfile().trim().toLowerCase().contains(profile)){
+                characteristicErrors.add("В Приложении Б не указана/неправильно указана программа подготовки");
+            }
+        }
+        catch (NullPointerException e){
             characteristicErrors.add("В Приложении Б не указана/неправильно указана программа подготовки");
         }
 
         //Проверка соответсвия индексов
-        error = checkCharacteristicIndexes(characteristicTableData.getPCompetencesTaskTypes(),
-                characteristicTableData.getPCompetences());
-        if(error!=null){
-            characteristicErrors.add("Ошибка соответствия индексов компетенций (Таблицы 4.3-4.4).<br>"+error);
+        try {
+            String error = checkCharacteristicIndexes(characteristicTableData.getPCompetencesTaskTypes(),
+                    characteristicTableData.getPCompetences());
+            if(error!=null){
+                characteristicErrors.add("<b>Ошибка соответствия индексов компетенций (Таблицы 4.3-4.4).</b><br>"+error);
+            }
         }
+        catch (Exception e){
+            characteristicErrors.add("<b>Ошибка парсинга соответствия индексов компетенций (Таблицы 4.3-4.4).</b>");
+        }
+
 
         return characteristicErrors;
     }

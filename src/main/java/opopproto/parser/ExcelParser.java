@@ -5,6 +5,7 @@ import opopproto.data.syllabus.SyllabusTitle;
 import opopproto.data.syllabus.VolumeData;
 import opopproto.domain.*;
 import opopproto.data.syllabus.DisciplinesData;
+import opopproto.exception.InvalidSyllabusException;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -28,13 +29,17 @@ public class ExcelParser {
         else{
             workbook = new HSSFWorkbook(fis);
         }
+        try {
+            syllabusData.setSyllabusTitle(parseTitle());
+            syllabusData.setDisciplinesData(parseDisciplines());
+            syllabusData.setCompetences(parseCompetence2(parseCompetence()));
+        }
+        catch (Exception e){
+            throw new InvalidSyllabusException();
+        }
 
-        syllabusData.setSyllabusTitle(parseTitle());
-        syllabusData.setDisciplinesData(parseDisciplines());
-        syllabusData.setCompetences(parseCompetence2(parseCompetence()));
         return syllabusData;
     }
-    //TODO: Возможно требуется переработка из-за пустых и null строк
     private SyllabusTitle parseTitle(){
         SyllabusTitle syllabusTitle = new SyllabusTitle();
         Sheet titleSheet = workbook.getSheetAt(0);

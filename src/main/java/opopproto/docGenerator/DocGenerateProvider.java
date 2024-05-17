@@ -21,6 +21,8 @@ public class DocGenerateProvider {
     private FosGenerator fosGenerator;
     @Autowired
     private RpdGenerator rpdGenerator;
+    @Autowired
+    private CharacteristicGenerator characteristicGenerator;
 
     public void generate(MultipartFile multipartFile, Boolean charCheckbox, Boolean rpdCheckbox, Boolean fosCheckbox) throws IOException {
         File targetFile = new File(documents.getDOCS_GEN_PATH() + "/" + multipartFile.getOriginalFilename());
@@ -34,7 +36,7 @@ public class DocGenerateProvider {
         fisExcel.close();
 
         if(charCheckbox){
-           //TODO:
+            characteristicGenerator.generate(syllabusData);
         }
         if(rpdCheckbox){
             rpdGenerator.generate(syllabusData);

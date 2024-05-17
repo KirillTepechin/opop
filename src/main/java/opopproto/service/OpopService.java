@@ -49,8 +49,7 @@ public class OpopService {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
 
         // Создание временного файла для сохранения загруженного архива
-        UUID uuid = UUID.randomUUID();
-        File zipFile = new File(uuid + ".zip");
+        File zipFile = new File(documents.getTMP_PATH()+ "/"+ file.getOriginalFilename());
         try (FileOutputStream fos = new FileOutputStream(zipFile)) {
             fos.write(file.getBytes());
         }
@@ -154,6 +153,10 @@ public class OpopService {
         }
 
         FileUtils.moveFileToDirectory(zipFile, userDir, false);
+        String filename = zipFile.getName();
+        UUID docUuid = UUID.randomUUID();
+        new File(userDir.getPath()+"/"+filename)
+                .renameTo(new File(userDir.getPath() + "/" + docUuid + ".zip"));
 
         InspectionResult inspectionResult = InspectionResult.builder()
                 .fosPackageFound(validationState.isFosPackageFound())
@@ -167,7 +170,8 @@ public class OpopService {
                 .unknownDocuments(validationState.getUnknownDocuments())
                 .isValid(false)
                 .head(headRepository.findByLogin(username))
-                .docUuid(zipFile.getName().substring(0, zipFile.getName().length() - 4))
+                .docUuid(docUuid.toString())
+                .filename(filename)
                 .build();
 
         inspectionResultRepository.save(inspectionResult);
@@ -180,6 +184,10 @@ public class OpopService {
         }
 
         FileUtils.moveFileToDirectory(zipFile, userDir, false);
+        String filename = zipFile.getName();
+        UUID docUuid = UUID.randomUUID();
+        new File(userDir.getPath()+"/"+filename)
+                .renameTo(new File(userDir.getPath() + "/" + docUuid + ".zip"));
 
         InspectionResult inspectionResult = InspectionResult.builder()
                 .characteristicErrors(complianceState.getCharacteristicErrors())
@@ -188,7 +196,8 @@ public class OpopService {
                 .isValid(true)
                 .isOk(complianceState.isOk())
                 .head(headRepository.findByLogin(username))
-                .docUuid(zipFile.getName().substring(0, zipFile.getName().length() - 4))
+                .docUuid(docUuid.toString())
+                .filename(filename)
                 .build();
 
         inspectionResultRepository.save(inspectionResult);

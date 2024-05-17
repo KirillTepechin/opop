@@ -82,7 +82,6 @@ public class ComplianceStateChecker {
         fosErrors.addAll(fosComplianceStateChecker.check(fosDataList, rpdDataList, syllabusData, characteristicData));
         complianceState.setFosErrors(fosErrors);
 
-        //TODO:Чек ошибок РПД
         List<String> rpdErrors = new ArrayList<>();
         if(namingErrorRpd!=null)
             rpdErrors.add(namingErrorRpd);

@@ -18,6 +18,8 @@ import java.util.Map;
 @Data
 public class Documents {
     @Getter
+    private final String TMP_PATH = "src/main/resources/tmp";
+    @Getter
     private final String DOCS_PATH = "src/main/resources/opopDocs";
     @Getter
     private final String DOCS_GEN_PATH = "src/main/resources/generateDocs";
@@ -26,9 +28,11 @@ public class Documents {
     @Getter
     private final String ZIP_INS_PATH = "src/main/resources/inspectionZip";
     @Getter
-    private final String RPD_TEMPLATE_PATH = "src/main/resources/rpdTemplates/МакетРпд.docx";
+    private final String RPD_TEMPLATE_PATH = "src/main/resources/docTemplates/МакетРпд.docx";
     @Getter
-    private final String RPD_PRACTICE_TEMPLATE_PATH = "src/main/resources/rpdTemplates/МакетРпдПрактика.docx";
+    private final String RPD_PRACTICE_TEMPLATE_PATH = "src/main/resources/docTemplates/МакетРпдПрактика.docx";
+    @Getter
+    private final String CHARACTERISTIC_TEMPLATE_PATH = "src/main/resources/docTemplates/МакетХарактеристики.docx";
 
     private File characteristics;
 

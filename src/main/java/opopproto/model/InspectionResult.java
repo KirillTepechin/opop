@@ -61,6 +61,7 @@ public class InspectionResult {
     boolean isOk;
 
     private String docUuid;
+    private String filename;
 
     @CreationTimestamp
     private LocalDateTime creationDate;

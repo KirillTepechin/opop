@@ -4,6 +4,22 @@ const mainDiv = document.getElementById('main')
 let mainBtnGroup = null
 let errorHdiv = null
 let okDiv = null
+function createCustomLabel(text){
+    okDiv = document.createElement('div')
+    okDiv.className = 'col-sm-6'
+    okDiv.style = 'margin-block: 10px'
+
+    let ok = document.createElement('h4')
+    ok.innerText = text
+    okDiv.append(ok)
+
+    let btnGroup = document.createElement('div')
+    btnGroup.className = 'btn-group-vertical'
+
+    mainDiv.append(okDiv)
+    mainDiv.append(btnGroup)
+    mainBtnGroup = btnGroup
+}
 function createOkLabel(){
     okDiv = document.createElement('div')
     okDiv.className = 'col-sm-6'
@@ -186,11 +202,14 @@ function handleFileSelect(event) {
     fetch('http://localhost:8080/opop/check-documents', {
         method: 'POST',
         body: formData
+    }).then((response) => {
+        if (response.ok) {
+            return response.json();
+        }
+        return response.text().then(text => { throw new Error(text) })
+
     })
-     .then(function (response) {
-        return response.json()
-      })
-      .then(function (data) {
+        .then(function (data) {
         console.log(data)
         fileInput.value=''
         analyseDiv.style.cssText = "display: none !important;";
@@ -248,7 +267,6 @@ function handleFileSelect(event) {
             }
         }
         else{
-
             if(data.ok){
                 createOkLabel()
             }
@@ -267,7 +285,9 @@ function handleFileSelect(event) {
         }
 
       })
-      .catch(function (error) {
-        console.log('error', error)
+      .catch(error => {
+        fileInput.value=''
+        analyseDiv.style.cssText = "display: none !important;";
+        createCustomLabel(error.message)
       })
 }

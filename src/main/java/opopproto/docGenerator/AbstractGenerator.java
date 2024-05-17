@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -92,6 +93,38 @@ public abstract class AbstractGenerator {
             for (var entrySet:headers.entrySet()) {
                 row.getCell(i).setWidth(String.valueOf(entrySet.getValue())); //4235 3449 1553
                 i++;
+            }
+        }
+    }
+    String getLevelByQualification(String qualification){
+        if(qualification.equalsIgnoreCase("магистр")){
+            return "магистратура";
+        } else if (qualification.equalsIgnoreCase("бакалавр")) {
+            return "бакалавриат";
+        }
+        else {
+            throw new IllegalArgumentException();
+        }
+    }
+
+    void replaceTextInParagraph(XWPFParagraph paragraph, String originalText, String updatedText) {
+        String paragraphText = paragraph.getParagraphText();
+        if (paragraphText.contains(originalText)) {
+            String updatedParagraphText = paragraphText.replace(originalText, updatedText);
+            while (!paragraph.getRuns().isEmpty()) {
+                paragraph.removeRun(0);
+            }
+            XWPFRun newRun = paragraph.createRun();
+            newRun.setText(updatedParagraphText);
+        }
+    }
+    void replaceTextInParagraphNoReformat(XWPFParagraph paragraph, String originalText, String updatedText) {
+        List<XWPFRun> runs = paragraph.getRuns();
+        for (XWPFRun run : runs) {
+            String text = run.getText(0);
+            if (text != null && text.contains(originalText)) {
+                String updatedRunText = text.replace(originalText, updatedText);
+                run.setText(updatedRunText, 0);
             }
         }
     }

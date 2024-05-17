@@ -48,30 +48,69 @@ public class WordParser {
             RpdTitle rpdTitle = new RpdTitle();
             AppendixData appendixData = new AppendixData();
             List<XWPFTable> tables = document.getTables();
-            boolean parsePracticeName = false;
             for (var table: tables) {
                 //Парсинг таблиц в титуле
-
                 if (table.getRow(0).getCell(0).getText()
                         .trim().equals("Дисциплина (модуль)") && table.getRows().size()==6) {
-                    rpdTitle.setTitleEqualsDiscipline(table.getRow(0).getCell(1).getText().trim());
-                    rpdTitle.setTitleEqualsLevel(table.getRow(2).getCell(1).getText().trim());
-                    rpdTitle.setTitleEqualsQualification(table.getRow(4).getCell(1).getText().trim());
+                    try {
+                        rpdTitle.setTitleEqualsDiscipline(table.getRow(0).getCell(1).getText().trim());
+                    }
+                    catch (Exception e){
+                        rpdTitle.setTitleEqualsDiscipline(null);
+                    }
+                    try {
+                        rpdTitle.setTitleEqualsLevel(table.getRow(2).getCell(1).getText().trim());
+                    }
+                    catch (Exception e){
+                        rpdTitle.setTitleEqualsLevel(null);
+                    }
+                    try {
+                        rpdTitle.setTitleEqualsQualification(table.getRow(4).getCell(1).getText().trim());
+                    }
+                    catch (Exception e){
+                        rpdTitle.setTitleEqualsQualification(null);
+                    }
                 }
                 else if (table.getRow(0).getCell(0).getText()
                         .trim().equals("Уровень образования") && table.getRows().size()==4) {
-                    rpdTitle.setTitleEqualsLevel(table.getRow(0).getCell(1).getText().trim());
-                    rpdTitle.setTitleEqualsQualification(table.getRow(2).getCell(1).getText().trim());
+                    try {
+                        rpdTitle.setTitleEqualsLevel(table.getRow(0).getCell(1).getText().trim());
+                    }
+                    catch (Exception e){
+                        rpdTitle.setTitleEqualsLevel(null);
+                    }
+                    try {
+                        rpdTitle.setTitleEqualsQualification(table.getRow(2).getCell(1).getText().trim());
+                    }
+                    catch (Exception e){
+                        rpdTitle.setTitleEqualsQualification(null);
+                    }
+
                 }
                 else if (table.getRow(0).getCell(0).getText()
                         .trim().equals("на кафедре")) {
-                    rpdTitle.setTitleEqualsSpeciality(table.getRow(2).getCell(1).getText().trim());
-                    rpdTitle.setTitleEqualsProfile(table.getRow(3).getCell(1).getText().trim());;
+                    try {
+                        rpdTitle.setTitleEqualsSpeciality(table.getRow(2).getCell(1).getText().trim());
+                    }
+                    catch (Exception e){
+                        rpdTitle.setTitleEqualsSpeciality(null);
+                    }
+                    try {
+                        rpdTitle.setTitleEqualsProfile(table.getRow(3).getCell(1).getText().trim());;
+                    }
+                    catch (Exception e){
+                        rpdTitle.setTitleEqualsProfile(null);;
+                    }
                 }
                 //Компетенции
                 else if (table.getRow(0).getCell(0).getText()
                         .trim().equals("Код компетенции")) {
-                    rpdData.setCompetences(parseRpdCompetencesTable(table));
+                    try {
+                        rpdData.setCompetences(parseRpdCompetencesTable(table));
+                    }
+                    catch (Exception e){
+                        rpdData.setCompetences(null);
+                    }
                 }
                 //Наимен. оцен средств
                 else if (table.getRow(0).getCell(0).getText().trim().equals("№ п/п")
@@ -83,13 +122,16 @@ public class WordParser {
                             continue;
                         }
                         //Если строка с индексом компетенции
-                        if(!row.getCell(1).getText().isBlank()){
-                            competence = row.getCell(1).getText().trim().toUpperCase();
+                        try {
+                            if(!row.getCell(1).getText().isBlank()){
+                                competence = row.getCell(1).getText().trim().toUpperCase();
+                            }
+                            rpdData.getEvaluateCompetences().add(
+                                    new EvaluateCompetences(competence, row.getCell(2).getText().trim().toUpperCase(),
+                                            row.getCell(3).getText().trim())
+                            );
                         }
-                        rpdData.getEvaluateCompetences().add(
-                                new EvaluateCompetences(competence, row.getCell(2).getText().trim().toUpperCase(),
-                                        row.getCell(3).getText().trim())
-                        );
+                        catch (Exception ignored){}
                     }
                 }
                 //Приложение
@@ -136,32 +178,37 @@ public class WordParser {
                     List<VolumeSemester> volumeSemesters = new ArrayList<>();
                     if(rpdData.isPractice()){
                         VolumeSemester volumeSemester = new VolumeSemester();
+                        try {
+                            volumeSemester.setIw(tryParseInt(table.getRow(3).getCell(1).getText()));
+                            volumeSemester.setControl(tryParseInt(table.getRow(7).getCell(1).getText()));
+                            volumeSemester.setTotal(tryParseInt(table.getRow(8).getCell(1).getText()));
+                            volumeSemester.setZeCount(tryParseInt(table.getRow(9).getCell(1).getText()));
 
-                        volumeSemester.setIw(tryParseInt(table.getRow(3).getCell(1).getText()));
-                        volumeSemester.setControl(tryParseInt(table.getRow(7).getCell(1).getText()));
-                        volumeSemester.setTotal(tryParseInt(table.getRow(8).getCell(1).getText()));
-                        volumeSemester.setZeCount(tryParseInt(table.getRow(9).getCell(1).getText()));
-
-                        volumeSemester.setSemester(Integer.parseInt(table.getRow(1).getCell(1).getText()));
-                        volumeSemesters.add(volumeSemester);
+                            volumeSemester.setSemester(Integer.parseInt(table.getRow(1).getCell(1).getText()));
+                            volumeSemesters.add(volumeSemester);
+                        }
+                        catch (Exception ignored){}
                     }
                     else {
                         for (int i = 0; i < 4; i++) {
                             VolumeSemester volumeSemester = new VolumeSemester();
                             int index = 1 + i;
-                            if(tryParseInt(table.getRow(1).getCell(index).getText())==0){
-                                continue;
-                            }
-                            volumeSemester.setContactWork(tryParseInt(table.getRow(2).getCell(index).getText()));
-                            volumeSemester.setLectures(tryParseInt(table.getRow(4).getCell(index).getText()));
-                            volumeSemester.setPw(tryParseInt(table.getRow(5).getCell(index).getText()));
-                            volumeSemester.setLw(tryParseInt(table.getRow(6).getCell(index).getText()));
-                            volumeSemester.setIw(tryParseInt(table.getRow(7).getCell(index).getText()));
-                            volumeSemester.setControl(tryParseInt(table.getRow(18).getCell(index).getText()));
-                            volumeSemester.setTotal(tryParseInt(table.getRow(19).getCell(index).getText()));
-                            volumeSemester.setZeCount(tryParseInt(table.getRow(20).getCell(index).getText()));
+                            try {
+                                if(tryParseInt(table.getRow(1).getCell(index).getText())==0){
+                                    continue;
+                                }
+                                volumeSemester.setContactWork(tryParseInt(table.getRow(2).getCell(index).getText()));
+                                volumeSemester.setLectures(tryParseInt(table.getRow(4).getCell(index).getText()));
+                                volumeSemester.setPw(tryParseInt(table.getRow(5).getCell(index).getText()));
+                                volumeSemester.setLw(tryParseInt(table.getRow(6).getCell(index).getText()));
+                                volumeSemester.setIw(tryParseInt(table.getRow(7).getCell(index).getText()));
+                                volumeSemester.setControl(tryParseInt(table.getRow(18).getCell(index).getText()));
+                                volumeSemester.setTotal(tryParseInt(table.getRow(19).getCell(index).getText()));
+                                volumeSemester.setZeCount(tryParseInt(table.getRow(20).getCell(index).getText()));
 
-                            volumeSemester.setSemester(Integer.parseInt(table.getRow(1).getCell(index).getText()));
+                                volumeSemester.setSemester(Integer.parseInt(table.getRow(1).getCell(index).getText()));
+                            }
+                            catch (Exception ignored){}
 
                             if(volumeSemester.getContactWork()!=0 || volumeSemester.getIw()!=0 ||
                                     volumeSemester.getPw()!=0|| volumeSemester.getLw()!=0 ||
@@ -179,13 +226,17 @@ public class WordParser {
                         .trim().equals("№")){
                     VolumeSemester volumeTotal = new VolumeSemester();
                     for (var row: table.getRows()) {
-                        if(row.getCell(1).getText().trim().equals("Итого часов")){
-                            volumeTotal.setLectures(tryParseInt(row.getCell(2).getText()));
-                            volumeTotal.setPw(tryParseInt(row.getCell(3).getText()));
-                            volumeTotal.setLw(tryParseInt(row.getCell(4).getText()));
-                            volumeTotal.setIw(tryParseInt(row.getCell(5).getText()));
-                            volumeTotal.setTotal(tryParseInt(row.getCell(6).getText()));
+                        try {
+                            if(row.getCell(1).getText().trim().equals("Итого часов")){
+                                volumeTotal.setLectures(tryParseInt(row.getCell(2).getText()));
+                                volumeTotal.setPw(tryParseInt(row.getCell(3).getText()));
+                                volumeTotal.setLw(tryParseInt(row.getCell(4).getText()));
+                                volumeTotal.setIw(tryParseInt(row.getCell(5).getText()));
+                                volumeTotal.setTotal(tryParseInt(row.getCell(6).getText()));
+                            }
                         }
+                        catch (Exception ignored){}
+
                     }
                     rpdData.setVolumeTotal(volumeTotal);
                 }
@@ -310,18 +361,21 @@ public class WordParser {
         //Ищем все оцен. средства
         while (tableIterator.hasNext()){
             XWPFTableRow row = tableIterator.next();
-            appendixesToFind.add(row.getCell(2).getText());
-            Evaluate evaluate = new Evaluate();
-            evaluate.setEvaluateType(defineEvaluateType(row.getCell(0).getText()));
-            evaluate.setName(row.getCell(0).getText());
-            Matcher matcher = pattern.matcher(row.getCell(1).getText().toUpperCase());
-            List<String> indexesCompetences = new ArrayList<>();
-            //Cбор всех индекс-компетенция
-            while (matcher.find()) {
-                indexesCompetences.add(matcher.group(1).toUpperCase());
+            try {
+                appendixesToFind.add(row.getCell(2).getText());
+                Evaluate evaluate = new Evaluate();
+                evaluate.setEvaluateType(defineEvaluateType(row.getCell(0).getText()));
+                evaluate.setName(row.getCell(0).getText());
+                Matcher matcher = pattern.matcher(row.getCell(1).getText().toUpperCase());
+                List<String> indexesCompetences = new ArrayList<>();
+                //Cбор всех индекс-компетенция
+                while (matcher.find()) {
+                    indexesCompetences.add(matcher.group(1).toUpperCase());
+                }
+                evaluate.setIndexesCompetences(indexesCompetences);
+                evaluates.add(evaluate);
             }
-            evaluate.setIndexesCompetences(indexesCompetences);
-            evaluates.add(evaluate);
+            catch (Exception ignored){}
         }
         fosData.setEvaluates(evaluates);
         appendixesToFind.forEach(appendix-> fosData.getAppendixesExisting().put(appendix, false));
@@ -499,59 +553,113 @@ public class WordParser {
             if (table.getRow(0).getCell(1).getText().contains("зачетная единица")){
                 for (var row: table.getRows()) {
                     if(row.getCell(0).getText().equals("ПООП")){
-                        characteristicTableData.setPoopContainsSpecialty(row.getCell(1).getText());
+                        try {
+                            characteristicTableData.setPoopContainsSpecialty(row.getCell(1).getText());
+                        }
+                        catch (Exception e){
+                            characteristicTableData.setPoopContainsSpecialty(null);
+                        }
                     }
                     if(row.getCell(0).getText().equals("ФГОС ВО")){
-                        characteristicTableData.setFgosContainsSpecialty(row.getCell(1).getText());
+                        try {
+                            characteristicTableData.setFgosContainsSpecialty(row.getCell(1).getText());
+                        }
+                        catch (Exception e){
+                            characteristicTableData.setFgosContainsSpecialty(null);
+                        }
                     }
                 }
             }
             //Если нашли таблицу с обл. проф. деят.
             if (table.getRow(0).getCell(0)
                     .getText().contains("Область профессиональной деятельности")){
-                String[] taskTypesArray = table.getRow(1).getCell(1).getText().split(", ");
-                characteristicTableData.setTaskTypes(Arrays.stream(taskTypesArray).sorted().toList());
+                try {
+                    String[] taskTypesArray = table.getRow(1).getCell(1).getText().split(", ");
+                    characteristicTableData.setTaskTypes(Arrays.stream(taskTypesArray).sorted().toList());
+                }
+                catch (Exception e){
+                    characteristicTableData.setTaskTypes(null);
+                }
+
             }
             //Если нашли таблицу УК
-            else if (table.getRow(0).getCell(0).getText().equals(U_COMPETENCE_HEADER) ){
-                List<Competence> uCompetences = parseCharacteristicCompetencesTable(1, 2,
-                        U_COMPETENCE_HEADER, table);
-                characteristicTableData.setUCompetences(uCompetences);
+            else if (table.getRow(0).getCell(0).getText().equals(U_COMPETENCE_HEADER)){
+                try {
+                    List<Competence> uCompetences = parseCharacteristicCompetencesTable(1, 2,
+                            U_COMPETENCE_HEADER, table);
+                    characteristicTableData.setUCompetences(uCompetences);
+                }
+                catch (Exception e){
+                    characteristicTableData.setUCompetences(null);
+                }
+
             }
             //Если нашли таблицу ОПК
             else if(table.getRow(0).getCell(0).getText().contains(OP_COMPETENCE_HEADER)){
-                List<Competence> opCompetences = parseCharacteristicCompetencesTable(0, 1,
-                        OP_COMPETENCE_HEADER, table);
-                characteristicTableData.setOpCompetences(opCompetences);
+                try {
+                    List<Competence> opCompetences = parseCharacteristicCompetencesTable(0, 1,
+                            OP_COMPETENCE_HEADER, table);
+                    characteristicTableData.setOpCompetences(opCompetences);
+                }
+                catch (Exception e){
+                    characteristicTableData.setOpCompetences(null);
+                }
             }
             //Если нашли таблицу ПК
             else if (table.getRow(0).getCell(0).getText().contains(P_COMPETENCE_HEADER)) {
-                List<Competence> pCompetences = parseCharacteristicCompetencesTable(0, 1,
-                        P_COMPETENCE_HEADER, table);
-                characteristicTableData.setPCompetences(pCompetences);
+                try {
+                    List<Competence> pCompetences = parseCharacteristicCompetencesTable(0, 1,
+                            P_COMPETENCE_HEADER, table);
+                    characteristicTableData.setPCompetences(pCompetences);
+                }
+                catch (Exception e){
+                    characteristicTableData.setPCompetences(null);
+                }
             }
             //Если нашли таблицу соответствия компетенций и типов задач
             else if (table.getRow(0).getCell(0).getText().contains(P_COMPETENCE_TASK_TYPES_HEADER)) {
-                Map<String, List<Competence>> pCompetences = parseCharacteristicCompetencesTable(
-                        table, characteristicTableData);
-                characteristicTableData.setPCompetencesTaskTypes(pCompetences);
+                try {
+                    Map<String, List<Competence>> pCompetences = parseCharacteristicCompetencesTable(
+                            table, characteristicTableData);
+                    characteristicTableData.setPCompetencesTaskTypes(pCompetences);
+                }
+                catch (Exception e){
+                    characteristicTableData.setPCompetencesTaskTypes(null);
+                }
+
             }
             // Парсинг похожих таблиц с дисциплинами
             else if(table.getRow(0).getCell(0).getText().equals("Индекс")
                     && table.getRow(0).getCell(1).getText().equals("Наименование дисциплины")){
                 if(ind==1){
-                    List<Competence> competencesDisciplineMatrix = parseCharacteristicMatrixCompetenceDisciplines(table);
-                    characteristicTableData.setMatrixCompetenceDisciplines(competencesDisciplineMatrix);
+                    try {
+                        List<Competence> competencesDisciplineMatrix = parseCharacteristicMatrixCompetenceDisciplines(table);
+                        characteristicTableData.setMatrixCompetenceDisciplines(competencesDisciplineMatrix);
+                    }
+                    catch (Exception e){
+                        characteristicTableData.setMatrixCompetenceDisciplines(null);
+                    }
+
                     ind++;
                 }
                 else if(ind==2){
-                    List<Discipline> baseDisciplines = parseCharacteristicDisciplines(table);
-                    characteristicTableData.setBaseDisciplines(baseDisciplines);
+                    try {
+                        List<Discipline> baseDisciplines = parseCharacteristicDisciplines(table);
+                        characteristicTableData.setBaseDisciplines(baseDisciplines);
+                    }
+                    catch (Exception e){
+                        characteristicTableData.setBaseDisciplines(null);
+                    }
                     ind++;
                 }
                 else if(ind==3){
-                    List<Discipline> varyDisciplines = parseCharacteristicDisciplines(table);
-                    characteristicTableData.setVaryDisciplines(varyDisciplines);
+                    try {
+                        List<Discipline> varyDisciplines = parseCharacteristicDisciplines(table);
+                        characteristicTableData.setVaryDisciplines(varyDisciplines);
+                    }
+                    catch (Exception e){
+                        characteristicTableData.setVaryDisciplines(null);
+                    }
                     ind++;
                 }
                 else{

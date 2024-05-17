@@ -15,7 +15,7 @@
         </thead>
         <tbody>
         <tr th:each="insDto : ${insDtos}">
-            <td><a th:href="@{|/download/ins?uuid=${insDto.docUuid}|}" th:text="ОПОП.zip" ></a></td>
+            <td><a th:href="@{|/download/ins?uuid=${insDto.docUuid}|}" th:text="${insDto.filename}" th:download="${insDto.filename}" ></a></td>
             <td th:text="${#temporals.format(insDto.creationDate, 'dd MMM yyyy в HH:mm')}"></td>
             <td>
                 <div id="main" class="col justify-content-center" style="text-align: -webkit-center;">
@@ -24,10 +24,6 @@
                         <h4 th:unless="${insDto.isValid==false}">Ошибки в документах</h4>
                         <h4 th:if="${insDto.isOk==true}">В документах отсутствуют ошибки</h4>
                     </div>
-
-
-
-
                         <div th:if="${insDto.isOk==false && insDto.isValid==false}" class="btn-group-vertical">
                             <div th:if="${insDto.characteristicsFound==false}" class="btn-group col-sm-6">
                                 <button type="button" class="btn btn-warning dropdown-toggle" data-bs-toggle="dropdown"

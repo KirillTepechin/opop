@@ -32,5 +32,15 @@ public class OpopProtoApplication implements CommandLineRunner {
 					.build();
 			headRepository.save(head);
 		}
+		if (headRepository.findByLogin("user2") == null) {
+			final Head head = Head.builder()
+					.name("Кирилл")
+					.surname("Тепечин")
+					.patronymic("Дмитриевич")
+					.password(passwordEncoder.encode("user2"))
+					.login("user2")
+					.build();
+			headRepository.save(head);
+		}
 	}
 }

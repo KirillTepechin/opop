@@ -1,7 +1,6 @@
 const fileInput = document.getElementById('customFile');
 const generateDiv = document.getElementById('generating')
 
-fileInput.addEventListener('change', handleFileSelect);
 
 const charCheckbox = document.getElementById('charCheckbox')
 const rpdCheckbox = document.getElementById('rpdCheckbox')
@@ -13,8 +12,12 @@ charCheckbox.addEventListener('change', checkSubmitButton);
 rpdCheckbox.addEventListener('change', checkSubmitButton);
 fosCheckbox.addEventListener('change', checkSubmitButton);
 fileInput.addEventListener('change', checkSubmitButton);
+//fileInput.addEventListener('change', handleFileSelect, false);
 
-function checkSubmitButton(){
+function checkSubmitButton(event){
+    if(event.target.files){
+        handleFileSelect(event)
+    }
     let charCheckboxState = $('#charCheckbox').is(":checked")
     let rpdCheckboxState = $('#rpdCheckbox').is(":checked")
     let fosCheckboxState = $('#fosCheckbox').is(":checked")
@@ -25,6 +28,7 @@ function checkSubmitButton(){
         generateBtn.classList.add('disabled')
     }
 }
+
 function handleFileSelect(event) {
     syllabusFile = event.target.files[0];
     $('label[for="customFile"]').html(syllabusFile.name)
