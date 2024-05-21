@@ -2,6 +2,7 @@ const fileInput = document.getElementById('customFile');
 const generateDiv = document.getElementById('generating')
 
 const mainDiv = document.getElementById('main')
+let errorHdiv = null
 let mainBtnGroup = null
 
 const charCheckbox = document.getElementById('charCheckbox')
@@ -16,18 +17,18 @@ fosCheckbox.addEventListener('change', checkSubmitButton);
 fileInput.addEventListener('change', checkSubmitButton);
 
 function createCustomLabel(text){
-    okDiv = document.createElement('div')
-    okDiv.className = 'col-sm-6'
-    okDiv.style = 'margin-block: 10px'
+    errorHdiv = document.createElement('div')
+    errorHdiv.className = 'col-sm-6'
+    errorHdiv.style = 'margin-block: 10px'
 
     let ok = document.createElement('h4')
     ok.innerText = text
-    okDiv.append(ok)
+    errorHdiv.append(ok)
 
     let btnGroup = document.createElement('div')
     btnGroup.className = 'btn-group-vertical'
 
-    mainDiv.append(okDiv)
+    mainDiv.append(errorHdiv)
     mainDiv.append(btnGroup)
     mainBtnGroup = btnGroup
 }
@@ -53,6 +54,11 @@ function handleFileSelect(event) {
 }
 
 function generate(){
+    if(errorHdiv){
+        mainDiv.removeChild(errorHdiv)
+        mainDiv.removeChild(mainBtnGroup)
+        errorHdiv = null
+    }
     generateDiv.style.removeProperty('display')
 
     const formData = new FormData();
@@ -88,12 +94,16 @@ function generate(){
         window.URL.revokeObjectURL(url);
 
         $('label[for="customFile"]').html('Загрузите учебный план(xls/xlsx)')
+        generateBtn.classList.add('disabled')
         syllabusFile = null
+        fileInput.value = null
      })
     .catch(function (error) {
         $('label[for="customFile"]').html('Загрузите учебный план(xls/xlsx)')
         generateDiv.style.cssText = "display: none !important;";
+        generateBtn.classList.add('disabled')
         syllabusFile = null
+        fileInput.value = null
         createCustomLabel(error.message)
     })
 }

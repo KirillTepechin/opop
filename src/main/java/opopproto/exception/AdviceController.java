@@ -16,7 +16,8 @@ public class AdviceController {
     @Autowired
     private Documents documents;
     @ExceptionHandler(InvalidSyllabusException.class)
-    public ResponseEntity<Object> handleSyllabusException(Throwable e) {
+    public ResponseEntity<Object> handleSyllabusException(Throwable e) throws IOException {
+        FileUtils.cleanDirectory(new File(documents.getDOCS_GEN_PATH()));
         return ResponseEntity.badRequest().body(e.getMessage());
     }
 
