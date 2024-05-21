@@ -686,7 +686,7 @@ public class CharacteristicGenerator extends AbstractGenerator{
     }
     private void setStandardsAndMergeCells(XWPFTable table, List<Standard> standards,
                                            int taskTypeInd, int compSize){
-        int standRowInd = 2 + (compSize*taskTypeInd) + (taskTypeInd+1);
+        int standRowInd = (compSize*3)*taskTypeInd + 2 + taskTypeInd + 1;
         XWPFTableCell standardsCell = table.getRow(standRowInd).getCell(4);
 
         XWPFParagraph paragraphStandards = standardsCell.getParagraphs().get(0);

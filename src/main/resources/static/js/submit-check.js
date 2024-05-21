@@ -5,18 +5,18 @@ let mainBtnGroup = null
 let errorHdiv = null
 let okDiv = null
 function createCustomLabel(text){
-    okDiv = document.createElement('div')
-    okDiv.className = 'col-sm-6'
-    okDiv.style = 'margin-block: 10px'
+    errorHdiv = document.createElement('div')
+    errorHdiv.className = 'col-sm-6'
+    errorHdiv.style = 'margin-block: 10px'
 
     let ok = document.createElement('h4')
     ok.innerText = text
-    okDiv.append(ok)
+    errorHdiv.append(ok)
 
     let btnGroup = document.createElement('div')
     btnGroup.className = 'btn-group-vertical'
 
-    mainDiv.append(okDiv)
+    mainDiv.append(errorHdiv)
     mainDiv.append(btnGroup)
     mainBtnGroup = btnGroup
 }
@@ -189,6 +189,7 @@ function handleFileSelect(event) {
     if(errorHdiv){
         mainDiv.removeChild(errorHdiv)
         mainDiv.removeChild(mainBtnGroup)
+        errorHdiv = null
     }
     if(okDiv){
         mainDiv.removeChild(okDiv)

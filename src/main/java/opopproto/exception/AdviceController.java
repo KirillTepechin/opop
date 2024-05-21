@@ -16,12 +16,14 @@ public class AdviceController {
     @Autowired
     private Documents documents;
     @ExceptionHandler(InvalidSyllabusException.class)
-    public ResponseEntity<Object> handleSyllabusException(Throwable e) {
+    public ResponseEntity<Object> handleSyllabusException(Throwable e) throws IOException {
+        FileUtils.cleanDirectory(new File(documents.getDOCS_GEN_PATH()));
         return ResponseEntity.badRequest().body(e.getMessage());
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Object> handleUnknownException(Throwable e) throws IOException {
+        e.printStackTrace();
         FileUtils.cleanDirectory(new File(documents.getTMP_PATH()));
         return ResponseEntity.badRequest().body(e.getMessage());
     }

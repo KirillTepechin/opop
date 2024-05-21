@@ -97,12 +97,14 @@ public class ExcelParser {
         //Парсим типы задач
         do {
             currentRow = titleSheet.getRow(rowIndex);
-            // Проверяем, что строка не пустая
-            if (!currentRow.getCell(1).getCellType().equals(CellType.BLANK)) {
-                taskTypes.add(currentRow.getCell(2).getStringCellValue());
+            if(currentRow.getCell(1) != null){
+                // Проверяем, что строка не пустая
+                if (!currentRow.getCell(1).getCellType().equals(CellType.BLANK)) {
+                    taskTypes.add(currentRow.getCell(2).getStringCellValue());
+                }
             }
-            rowIndex++;
-        } while (!currentRow.getCell(1).getCellType().equals(CellType.BLANK));  // Пока строка не пустая
+            rowIndex+=1;
+        } while (currentRow.getCell(1)!=null);  // Пока строка не пустая
 
         syllabusTitle.setTaskTypes(taskTypes);
 
