@@ -762,8 +762,9 @@ public class WordParser {
                     taskTypesCompetences.put(taskTypeName, competences);
                     taskTypeStandards.put(taskTypeName, standards);
 
-                    competences.clear();
-                    standards.clear();
+                    competences = new ArrayList<>();
+                    standards = new ArrayList<>();
+                    competence = null;
                 }
                 taskTypeName = row.getCell(0).getText();
             }

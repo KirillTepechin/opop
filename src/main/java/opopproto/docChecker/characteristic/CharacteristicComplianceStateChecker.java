@@ -433,10 +433,10 @@ public class CharacteristicComplianceStateChecker {
             }
             catch (IndexOutOfBoundsException exception){
                 if(competencesCharacteristic.size()>competencesSyllabus.size()){
-                    errorMes += "Обнаружены лишние" + (competencesCharacteristic.size()-competencesSyllabus.size()) + "компетенции в характеристике";
+                    errorMes += "Обнаружены лишние " + (competencesCharacteristic.size()-competencesSyllabus.size()) + " компетенции в характеристике";
                 }
                 else{
-                    errorMes += "В характеристике нехватает"+ (competencesSyllabus.size()-competencesCharacteristic.size())+ "компетенций";
+                    errorMes += "В характеристике нехватает "+ (competencesSyllabus.size()-competencesCharacteristic.size())+ " компетенций";
                 }
                 break;
             }
@@ -479,10 +479,10 @@ public class CharacteristicComplianceStateChecker {
             }
             catch (IndexOutOfBoundsException exception){
                 if(disciplinesCharacteristic.size()>disciplinesSyllabus.size()){
-                    errorMes += "Обнаружены лишние" + (disciplinesCharacteristic.size()-disciplinesSyllabus.size()) + "дисциплин в характеристике";
+                    errorMes += "Обнаружены лишние " + (disciplinesCharacteristic.size()-disciplinesSyllabus.size()) + " дисциплин в характеристике";
                 }
                 else{
-                    errorMes += "В характеристике нехватает"+ (disciplinesSyllabus.size()-disciplinesCharacteristic.size())+ "дисциплин";
+                    errorMes += "В характеристике нехватает "+ (disciplinesSyllabus.size()-disciplinesCharacteristic.size())+ " дисциплин";
                 }
                 break;
             }
@@ -530,12 +530,12 @@ public class CharacteristicComplianceStateChecker {
             }
             catch (IndexOutOfBoundsException exception){
                 if(characteristicCompetences.size()>syllabusCompetences.size()){
-                    matrixError += "Обнаружены лишние" + (characteristicCompetences.size()
-                            -syllabusCompetences.size()) + "компетенции в характеристике<br>";
+                    matrixError += "Обнаружены лишние " + (characteristicCompetences.size()
+                            -syllabusCompetences.size()) + " компетенции в характеристике<br>";
                 }
                 else{
-                    matrixError += "В характеристике нехватает"+ (syllabusCompetences.size()
-                            -characteristicCompetences.size())+ "компетенций<br>";
+                    matrixError += "В характеристике нехватает "+ (syllabusCompetences.size()
+                            -characteristicCompetences.size())+ " компетенций<br>";
                 }
                 break;
             }
@@ -566,10 +566,10 @@ public class CharacteristicComplianceStateChecker {
             }
             catch (IndexOutOfBoundsException exception){
                 if(characteristicStandards.size()>syllabusStandards.size()){
-                    errorMes += "Обнаружены лишние" + (characteristicStandards.size()-syllabusStandards.size()) + "проф. стандарты в характеристике (Приложение А)";
+                    errorMes += "Обнаружены лишние " + (characteristicStandards.size()-syllabusStandards.size()) + " проф. стандарты в характеристике (Приложение А)";
                 }
                 else{
-                    errorMes += "В характеристике (Приложение А) нехватает"+ (syllabusStandards.size()-characteristicStandards.size())+ "проф. стандарта/ов";
+                    errorMes += "В характеристике (Приложение А) нехватает "+ (syllabusStandards.size()-characteristicStandards.size())+ " проф. стандарта/ов";
                 }
                 break;
             }
@@ -626,12 +626,12 @@ public class CharacteristicComplianceStateChecker {
             }
             catch (IndexOutOfBoundsException exception){
                 if(characteristicStandards.size()>syllabusStandards.size()){
-                    errorMes += "Обнаружены лишние" + (characteristicStandards.size()
-                            -syllabusStandards.size()) + "проф. стандарты в характеристике\n";
+                    errorMes += "Обнаружены лишние " + (characteristicStandards.size()
+                            -syllabusStandards.size()) + " проф. стандарты в характеристике\n";
                 }
                 else{
-                    errorMes += "В характеристике нехватает"+ (syllabusStandards.size()
-                            -characteristicStandards.size())+ "проф. стандарта/ов\n";
+                    errorMes += "В характеристике нехватает "+ (syllabusStandards.size()
+                            -characteristicStandards.size())+ " проф. стандарта/ов\n";
                 }
                 break;
             }
@@ -681,10 +681,10 @@ public class CharacteristicComplianceStateChecker {
             i++;
         }
         if(!errorStandards.isEmpty()){
-            errorMes+="Типы задач ("+String.join(", ", errorStandards)+") не содержут проф. стандарты указанные в учебном плане.";
+            errorMes+="Типы задач ("+String.join(", ", errorStandards)+") не содержут проф. стандарты указанные в учебном плане.<br>";
         }
         if(!errorName.isEmpty()){
-            errorMes+="Наименование типов задач ("+String.join(", ", errorName)+ ") не совпадают с учебным планом.";
+            errorMes+="Наименование типов задач ("+String.join(", ", errorName)+ ") не совпадают с учебным планом.<br>";
         }
         if(!errorMes.isBlank()){
             return errorMes;
@@ -708,7 +708,7 @@ public class CharacteristicComplianceStateChecker {
                 if (syllabusTaskType.equals(characteristicTaskType)) {
                     String errorComp = checkCharacteristicCompetences(competences, competencesSyllabus);
                     if(errorComp!=null){
-                        errorMes+="Ошибка в компетенциях типа задач '"+taskType+"':\n"+errorComp;
+                        errorMes+="<br>Ошибка в компетенциях типа задач '"+taskType+"':<br>"+errorComp;
                     }
                 }
                 else{
@@ -721,7 +721,7 @@ public class CharacteristicComplianceStateChecker {
             i++;
         }
         if(!errorName.isEmpty()){
-            errorMes+="Наименование типов задач ("+String.join(", ", errorName)+ ") не совпадают с учебным планом.";
+            errorMes+="Наименование типов задач ("+String.join(", ", errorName)+ ") не совпадают с учебным планом.<br>";
         }
         if(!errorMes.isBlank()){
             return errorMes;
@@ -739,7 +739,7 @@ public class CharacteristicComplianceStateChecker {
                 Competence pCompetence = pCompetences.get(j);
                 Competence competence = competences.get(j);
                 if(!competence.getIds().equals(pCompetence.getIds())){
-                    errorMes+="Ошибка соответствия индексов в компетенции "+ pCompetence.getIndex() +" типа задач '"+taskType+"'\n";
+                    errorMes+="Ошибка соответствия индексов в компетенции "+ pCompetence.getIndex() +" типа задач '"+taskType+"'<br>";
                 }
             }
 
