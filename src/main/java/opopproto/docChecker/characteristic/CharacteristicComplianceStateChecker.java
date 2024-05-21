@@ -1,5 +1,6 @@
 package opopproto.docChecker.characteristic;
 
+import lombok.RequiredArgsConstructor;
 import opopproto.data.characteristic.CharacteristicData;
 import opopproto.data.characteristic.CharacteristicParagraphData;
 import opopproto.data.characteristic.CharacteristicTableData;
@@ -20,9 +21,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Component
+@RequiredArgsConstructor
 public class CharacteristicComplianceStateChecker {
-    @Autowired
-    private StandardComparator standardComparator;
+    private final StandardComparator standardComparator;
 
     //Проверка характеристики
     public List<String> check(SyllabusData syllabusData,
@@ -89,11 +90,11 @@ public class CharacteristicComplianceStateChecker {
             //Проверка проф компетенций
             String error = checkCharacteristicCompetences(characteristicTableData.getPCompetences(), syllabusData.getPCompetences());
             if(error!=null){
-                characteristicErrors.add("<b>Ошибка в таблице общепрофессиональных компетенций.</b><br>"+error);
+                characteristicErrors.add("<b>Ошибка в таблице профессиональных компетенций.</b><br>"+error);
             }
         }
         catch (Exception e){
-            characteristicErrors.add("<b>Ошибка парсинга в таблице общепрофессиональных компетенций.</b>");
+            characteristicErrors.add("<b>Ошибка парсинга в таблице профессиональных компетенций.</b>");
         }
 
         //Проверка матрицы соответствия

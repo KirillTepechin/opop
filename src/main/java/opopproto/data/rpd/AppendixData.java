@@ -13,9 +13,9 @@ public class AppendixData {
     String equalsSpeciality;
     String equalsProfile;
     List<String> competencesIndexes = new ArrayList<>();
-    Integer zeCount;
-    Integer totalHours;
-    List<String> controlForms;
+    int zeCount;
+    int totalHours;
+    List<String> controlForms = new ArrayList<>();
 
     public void setEqualsSpeciality(String equalsSpeciality){
         this.equalsSpeciality = equalsSpeciality

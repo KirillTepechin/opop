@@ -1,5 +1,6 @@
 package opopproto.docChecker.rpd;
 
+import lombok.RequiredArgsConstructor;
 import opopproto.data.characteristic.CharacteristicData;
 import opopproto.data.rpd.AppendixData;
 import opopproto.data.rpd.EvaluateCompetences;
@@ -18,9 +19,9 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Component
+@RequiredArgsConstructor
 public class RpdComplianceStateChecker {
-    @Autowired
-    private Documents documents;
+    private final Documents documents;
     public List<String> check(List<RpdData> rpdDataList, SyllabusData syllabusData,
                               CharacteristicData characteristicData){
         List<String> errors = new ArrayList<>();
@@ -376,17 +377,17 @@ public class RpdComplianceStateChecker {
                 }
                 if(syllabusLw!=rpdDataVolumeTotal.getLw()){
                     tableErrors.add("В РПД документе '"+ rpdData.getRpdName() +
-                            "' количество часов <i>лабораторных занятий</i> несовпадает с планом. План - " +
+                            "' количество часов <i>лабораторных занятий</i> не совпадает с планом. План - " +
                             syllabusLw + " ч");
                 }
                 if(syllabusIw!=rpdDataVolumeTotal.getIw()){
                     tableErrors.add("В РПД документе '"+ rpdData.getRpdName() +
-                            "' количество часов <i>самостоятельной работы</i> несовпадает с планом. План - " +
+                            "' количество часов <i>самостоятельной работы</i> не совпадает с планом. План - " +
                             syllabusIw + " ч (Считается как Контроль+СР)");
                 }
                 if(syllabusVolumeTotal.getTotal()!=rpdDataVolumeTotal.getTotal()){
                     tableErrors.add("В РПД документе '"+ rpdData.getRpdName() +
-                            "' количество <i>итоговых</i> часов несовпадает с планом. План - " +
+                            "' количество <i>итоговых</i> часов не совпадает с планом. План - " +
                             syllabusVolumeTotal.getTotal() + " ч");
                 }
             }

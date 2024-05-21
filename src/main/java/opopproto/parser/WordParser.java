@@ -770,19 +770,19 @@ public class WordParser {
             else{
                 //Парсим стандарты
                 if(!row.getCell(4).getText().isBlank()){
-                    for (var par:row.getCell(4).getParagraphs()) {
-                        String regex = "(\\d+\\.\\d+)\\s(.*)"; // регулярное выражение для поиска кода и названия
+                    Pattern pattern = Pattern.compile("\\d{2}\\.\\d{3}");
+                    Matcher matcher = pattern.matcher(row.getCell(4).getText());
+                    int i = 0;
+                    List<String> names = Arrays.stream(row.getCell(4).getText().split("(\\d{2}\\.\\d{3})"))
+                            .map(String::trim)
+                            .filter(str -> !str.isEmpty()).toList();
+                    while (matcher.find()){
+                        Standard standard = new Standard();
+                        standard.setCode(matcher.group());
+                        standard.setName(names.get(i));
 
-                        Pattern pattern = Pattern.compile(regex);
-                        Matcher matcher = pattern.matcher(par.getText());
-
-                        if (matcher.find()) {
-                            Standard standard = new Standard();
-                            standard.setCode(matcher.group(1));
-                            standard.setName(matcher.group(2));
-
-                            standards.add(standard);
-                        }
+                        standards.add(standard);
+                        i++;
                     }
                 }
                 //Если строка с названием компетенции

@@ -22,7 +22,7 @@ public class AdviceController {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Object> handleUnknownException(Throwable e) throws IOException {
-        //FileUtils.cleanDirectory(new File(documents.getTMP_PATH()));
+        FileUtils.cleanDirectory(new File(documents.getTMP_PATH()));
         return ResponseEntity.badRequest().body(e.getMessage());
     }
 }

@@ -355,6 +355,7 @@ public class CharacteristicGenerator extends AbstractGenerator{
                 newRow.getCell(5).setText(subLaborFunc.getCode());
                 newRow.getCell(6).setText(syllabusQualification);
                 table.addRow(newRow);
+                newRow = copyRow(table, table.getRow(1));
             }
         }
 

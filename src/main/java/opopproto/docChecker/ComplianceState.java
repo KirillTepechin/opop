@@ -14,5 +14,5 @@ public class ComplianceState implements ErrorState {
     public boolean isValid() {
         return true;
     }
-    public boolean isOk(){return characteristicErrors.isEmpty();}
+    public boolean isOk(){return characteristicErrors.isEmpty() && fosErrors.isEmpty() && rpdErrors.isEmpty();}
 }

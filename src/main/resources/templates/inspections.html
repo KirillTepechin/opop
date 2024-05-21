@@ -21,8 +21,11 @@
                 <div id="main" class="col justify-content-center" style="text-align: -webkit-center;">
                     <div class="col-sm-6" style="margin-block: 10px;">
                         <h4 th:if="${insDto.isValid==false}">Ошибки валидации</h4>
-                        <h4 th:unless="${insDto.isValid==false}">Ошибки в документах</h4>
-                        <h4 th:if="${insDto.isOk==true}">В документах отсутствуют ошибки</h4>
+                        <div th:unless="${insDto.isValid==false}">
+                            <h4 th:if="${insDto.isOk==fakse}">Ошибки в документах</h4>
+                            <h4 th:if="${insDto.isOk==true}">В документах отсутствуют ошибки</h4>
+                        </div>
+
                     </div>
                         <div th:if="${insDto.isOk==false && insDto.isValid==false}" class="btn-group-vertical">
                             <div th:if="${insDto.characteristicsFound==false}" class="btn-group col-sm-6">

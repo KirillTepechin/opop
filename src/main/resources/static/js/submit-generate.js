@@ -1,6 +1,8 @@
 const fileInput = document.getElementById('customFile');
 const generateDiv = document.getElementById('generating')
 
+const mainDiv = document.getElementById('main')
+let mainBtnGroup = null
 
 const charCheckbox = document.getElementById('charCheckbox')
 const rpdCheckbox = document.getElementById('rpdCheckbox')
@@ -12,7 +14,23 @@ charCheckbox.addEventListener('change', checkSubmitButton);
 rpdCheckbox.addEventListener('change', checkSubmitButton);
 fosCheckbox.addEventListener('change', checkSubmitButton);
 fileInput.addEventListener('change', checkSubmitButton);
-//fileInput.addEventListener('change', handleFileSelect, false);
+
+function createCustomLabel(text){
+    okDiv = document.createElement('div')
+    okDiv.className = 'col-sm-6'
+    okDiv.style = 'margin-block: 10px'
+
+    let ok = document.createElement('h4')
+    ok.innerText = text
+    okDiv.append(ok)
+
+    let btnGroup = document.createElement('div')
+    btnGroup.className = 'btn-group-vertical'
+
+    mainDiv.append(okDiv)
+    mainDiv.append(btnGroup)
+    mainBtnGroup = btnGroup
+}
 
 function checkSubmitButton(event){
     if(event.target.files){
@@ -50,8 +68,13 @@ function generate(){
     fetch("http://localhost:8080/opop/generate", {
         method: 'POST',
         body: formData
+    }).then((response) => {
+        if (response.ok) {
+            return response.blob();
+        }
+        return response.text().then(text => { throw new Error(text) })
+
     })
-    .then(resp => resp.status === 200 ? resp.blob() : Promise.reject('Что то пошло не так'))
     .then(blob => {
         generateDiv.style.cssText = "display: none !important;";
         const url = window.URL.createObjectURL(blob);
@@ -68,8 +91,9 @@ function generate(){
         syllabusFile = null
      })
     .catch(function (error) {
-        console.log('error', error)
         $('label[for="customFile"]').html('Загрузите учебный план(xls/xlsx)')
+        generateDiv.style.cssText = "display: none !important;";
         syllabusFile = null
+        createCustomLabel(error.message)
     })
 }

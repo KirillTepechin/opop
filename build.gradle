@@ -34,6 +34,7 @@ dependencies {
 	implementation 'org.webjars:jquery:3.7.1'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
+	testImplementation 'org.projectlombok:lombok:1.18.28'
 
 	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'org.postgresql:postgresql'

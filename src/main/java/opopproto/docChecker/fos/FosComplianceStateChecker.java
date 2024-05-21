@@ -1,5 +1,6 @@
 package opopproto.docChecker.fos;
 
+import lombok.RequiredArgsConstructor;
 import opopproto.data.characteristic.CharacteristicData;
 import opopproto.data.fos.Evaluate;
 import opopproto.data.fos.FosData;
@@ -21,9 +22,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Component
+@RequiredArgsConstructor
 public class FosComplianceStateChecker {
-    @Autowired
-    private Documents documents;
+    private final Documents documents;
     public List<String> check(List<FosData> fosDataList, List<RpdData> rpdDataList,
                               SyllabusData syllabusData, CharacteristicData characteristicData){
         List<String> fosErrors = new ArrayList<>();
@@ -53,7 +54,7 @@ public class FosComplianceStateChecker {
                 }
             }
             if(!appendixErrors.isEmpty()){
-                appendixesErrors.add("В документе " + fos.getFosName()+", Приложения :"+ String.join(", ",appendixErrors));
+                appendixesErrors.add("В документе " + fos.getFosName()+", Приложения : "+ String.join(", ",appendixErrors));
             }
         }
         if(!appendixesErrors.isEmpty()){
