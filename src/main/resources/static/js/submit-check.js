@@ -126,6 +126,8 @@ function createStandardErrorLabel(error, subError){
     const listItem = document.createElement('li');
     const link = document.createElement('a');
     link.classList.add('dropdown-item');
+    link.style = 'text-wrap: pretty;'
+
     link.setAttribute('href', '#');
     link.textContent = subError;
 

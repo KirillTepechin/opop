@@ -20,15 +20,12 @@
             <td>
                 <div id="main" class="col justify-content-center" style="text-align: -webkit-center;">
                     <div class="col-sm-6" style="margin-block: 10px;">
-                        <h4 th:if="${insDto.isValid==false}">Ошибки валидации</h4>
-                        <div th:unless="${insDto.isValid==false}">
-                            <h4 th:if="${insDto.isOk==fakse}">Ошибки в документах</h4>
-                            <h4 th:if="${insDto.isOk==true}">В документах отсутствуют ошибки</h4>
-                        </div>
-
+                        <h4 th:if="${!insDto.isValid}">Ошибки валидации</h4>
+                        <h4 th:if="${insDto.isValid && !insDto.isOk}">Ошибки в документах</h4>
+                        <h4 th:if="${insDto.isValid && insDto.isOk}">В документах отсутствуют ошибки</h4>
                     </div>
                         <div th:if="${insDto.isOk==false && insDto.isValid==false}" class="btn-group-vertical">
-                            <div th:if="${insDto.characteristicsFound==false}" class="btn-group col-sm-6">
+                            <div th:if="${insDto.characteristicsFound==false}" class="btn-group col-sm-8">
                                 <button type="button" class="btn btn-warning dropdown-toggle" data-bs-toggle="dropdown"
                                         aria-expanded="false">Характеристика не найдена
                                 </button>
@@ -37,7 +34,7 @@
                                 </ul>
                             </div>
 
-                            <div th:if="${insDto.characteristicsInRightExtension==false && insDto.characteristicsFound==true}" class="btn-group col-sm-6">
+                            <div th:if="${insDto.characteristicsInRightExtension==false && insDto.characteristicsFound==true}" class="btn-group col-sm-8">
                                 <button type="button" class="btn btn-warning dropdown-toggle" data-bs-toggle="dropdown"
                                         aria-expanded="false">Формат характеристики
                                 </button>
@@ -46,7 +43,7 @@
                                 </ul>
                             </div>
 
-                            <div th:if="${insDto.fosPackageFound==false}" class="btn-group col-sm-6">
+                            <div th:if="${insDto.fosPackageFound==false}" class="btn-group col-sm-8">
                                 <button type="button" class="btn btn-warning dropdown-toggle" data-bs-toggle="dropdown"
                                         aria-expanded="false">Не найдена директория с документами ФОС
                                 </button>
@@ -55,7 +52,7 @@
                                 </ul>
                             </div>
 
-                            <div th:if="${insDto.rpdPackageFound==false}" class="btn-group col-sm-6">
+                            <div th:if="${insDto.rpdPackageFound==false}" class="btn-group col-sm-8">
                                 <button type="button" class="btn btn-warning dropdown-toggle" data-bs-toggle="dropdown"
                                         aria-expanded="false">Не найдена директория с документами РПД
                                 </button>
@@ -64,7 +61,7 @@
                                 </ul>
                             </div>
 
-                            <div th:if="${insDto.syllabusFound==false}" class="btn-group col-sm-6">
+                            <div th:if="${insDto.syllabusFound==false}" class="btn-group col-sm-8">
                                 <button type="button" class="btn btn-warning dropdown-toggle" data-bs-toggle="dropdown"
                                         aria-expanded="false">Учебный план не найден
                                 </button>
@@ -73,7 +70,7 @@
                                 </ul>
                             </div>
 
-                            <div th:if="${insDto.syllabusInRightExtension==false && insDto.syllabusFound==true}" class="btn-group col-sm-6">
+                            <div th:if="${insDto.syllabusInRightExtension==false && insDto.syllabusFound==true}" class="btn-group col-sm-8">
                                 <button type="button" class="btn btn-warning dropdown-toggle" data-bs-toggle="dropdown"
                                         aria-expanded="false">Формат учебного плана
                                 </button>
@@ -82,7 +79,7 @@
                                 </ul>
                             </div>
 
-                            <div th:if="${insDto.fosInWrongFormat.isEmpty()==false}"  class="btn-group col-sm-6">
+                            <div th:if="${insDto.fosInWrongFormat.isEmpty()==false}"  class="btn-group col-sm-8">
                                 <button th:text="'Название документов ФОС (' + ${insDto.fosInWrongFormat.size()}+' )'" type="button" class="btn btn-warning dropdown-toggle" data-bs-toggle="dropdown"
                                         aria-expanded="false">
                                 </button>
@@ -95,7 +92,7 @@
                                     </div>
                                 </ul>
                             </div>
-                            <div th:if="${insDto.rpdInWrongFormat.isEmpty()==false}" class="btn-group col-sm-6">
+                            <div th:if="${insDto.rpdInWrongFormat.isEmpty()==false}" class="btn-group col-sm-8">
                                 <button th:text="'Название документов РПД (' + ${insDto.rpdInWrongFormat.size()}+' )'" type="button" class="btn btn-warning dropdown-toggle" data-bs-toggle="dropdown"
                                         aria-expanded="false">
                                 </button>
@@ -108,7 +105,7 @@
                                     </div>
                                 </ul>
                             </div>
-                            <div th:if="${insDto.unknownDocuments.isEmpty()==false}" class="btn-group col-sm-6">
+                            <div th:if="${insDto.unknownDocuments.isEmpty()==false}" class="btn-group col-sm-8">
                                 <button th:text="'Неизвестные документы (' + ${insDto.unknownDocuments.size()}+' )'" type="button" class="btn btn-warning dropdown-toggle" data-bs-toggle="dropdown"
                                         aria-expanded="false">
                                 </button>
@@ -125,7 +122,7 @@
 
 
                     <div th:if="${insDto.isOk==false && insDto.isValid==true}" class="btn-group-vertical">
-                        <div th:if="${insDto.characteristicErrors.isEmpty==false}" class="btn-group col-sm-6">
+                        <div th:if="${insDto.characteristicErrors.isEmpty==false}" class="btn-group col-sm-8">
                             <button th:utext="'Ошибки в характеристике (' + ${insDto.characteristicErrors.size()} + ')'" type="button" class="btn btn-danger dropdown-toggle" data-bs-toggle="dropdown"
                                     aria-expanded="false">
                             </button>
@@ -138,7 +135,7 @@
                                 </div>
                             </ul>
                         </div>
-                        <div th:if="${insDto.fosErrors.isEmpty==false}" class="btn-group col-sm-6">
+                        <div th:if="${insDto.fosErrors.isEmpty==false}" class="btn-group col-sm-8">
                             <button th:text="'Ошибки в ФОС ('+ ${insDto.fosErrors.size()} + ')'" type="button" class="btn btn-danger dropdown-toggle" data-bs-toggle="dropdown"
                                     aria-expanded="false">
                             </button>
@@ -151,7 +148,7 @@
                                 </div>
                             </ul>
                         </div>
-                        <div class="btn-group col-sm-6">
+                        <div class="btn-group col-sm-8">
                             <button th:text="'Ошибки в РПД ('+ ${insDto.rpdErrors.size()} + ')'" type="button" class="btn btn-danger dropdown-toggle" data-bs-toggle="dropdown"
                                     aria-expanded="false">
                             </button>
