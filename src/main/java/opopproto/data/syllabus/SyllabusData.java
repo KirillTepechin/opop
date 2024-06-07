@@ -17,7 +17,6 @@ public class SyllabusData {
     private SyllabusTitle syllabusTitle;
     private DisciplinesData disciplinesData;
     private List<Competence> competences;
-
     public List<Competence> getUCompetences(){
         return competences.stream().filter(competence -> competence.getIndex().trim().startsWith("УК-")).toList();
     }

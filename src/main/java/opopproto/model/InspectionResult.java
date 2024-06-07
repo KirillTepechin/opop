@@ -26,15 +26,15 @@ public class InspectionResult {
 
     @ElementCollection
     @CollectionTable(name = "characteristic_errors", joinColumns = @JoinColumn(name = "id"))
-    @Column(name = "error", length = 50000)
+    @Column(name = "error", length = 100000)
     private List<String> characteristicErrors;
     @ElementCollection
     @CollectionTable(name = "fos_errors", joinColumns = @JoinColumn(name = "id"))
-    @Column(name = "error", length = 50000)
+    @Column(name = "error", length = 100000)
     private List<String> fosErrors;
     @ElementCollection
     @CollectionTable(name = "rpd_errors", joinColumns = @JoinColumn(name = "id"))
-    @Column(name = "error", length = 50000)
+    @Column(name = "error", length = 100000)
     private List<String> rpdErrors;
 
     boolean fosPackageFound = false;
@@ -46,15 +46,15 @@ public class InspectionResult {
 
     @ElementCollection
     @CollectionTable(name = "fos_in_wrong_format", joinColumns = @JoinColumn(name = "id"))
-    @Column(name = "error", length = 50000)
+    @Column(name = "error", length = 100000)
     private List<String> fosInWrongFormat;
     @ElementCollection
     @CollectionTable(name = "rpd_in_wrong_format", joinColumns = @JoinColumn(name = "id"))
-    @Column(name = "error", length = 50000)
+    @Column(name = "error", length = 100000)
     private List<String> rpdInWrongFormat;
     @ElementCollection
     @CollectionTable(name = "unknown_documents", joinColumns = @JoinColumn(name = "id"))
-    @Column(name = "error", length = 50000)
+    @Column(name = "error", length = 100000)
     private List<String> unknownDocuments;
 
     boolean isValid;

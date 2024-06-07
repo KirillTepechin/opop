@@ -1,4 +1,6 @@
-
+html{
+    font-size: larger;
+}
 input[type=file]{
      display: none;
 }

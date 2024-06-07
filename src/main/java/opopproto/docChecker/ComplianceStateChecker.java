@@ -55,14 +55,16 @@ public class ComplianceStateChecker {
         FileInputStream fisWord = new FileInputStream(documents.getCharacteristics());
         CharacteristicData characteristicData = wordParser.parseCharacteristics(fisWord);
 
+        //Удаление Б3
+        fosComplianceStateChecker.removeB3(documents.getFos());
+        rpdComplianceStateChecker.removeB3(documents.getRpd());
+
+        //Проверка составляющих файлов
         String namingErrorFos = fosComplianceStateChecker.checkNaming(documents.getFos(),
                 syllabusData.getDisciplinesData().getAllDisciplines());
         String namingErrorRpd = rpdComplianceStateChecker.checkNaming(documents.getRpd(),
                 syllabusData.getDisciplinesData().getAllDisciplines());
 
-        //Удаление Б3
-        fosComplianceStateChecker.removeB3(documents.getFos());
-        rpdComplianceStateChecker.removeB3(documents.getRpd());
 
         //Парсинг ФОС
         List<FosData> fosDataList = wordParser.parseFos(documents.getFos());

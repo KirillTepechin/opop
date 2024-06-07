@@ -32,6 +32,12 @@ public class Documents {
     @Getter
     private final String RPD_PRACTICE_TEMPLATE_PATH = "src/main/resources/docTemplates/МакетРпдПрактика.docx";
     @Getter
+    private final String FOS_TEMPLATE_PATH = "src/main/resources/docTemplates/МакетФОС.docx";
+    @Getter
+    private final String FOS_PRACTICE_TEMPLATE_PATH = "src/main/resources/docTemplates/МакетФОСПрактика.docx";
+    @Getter
+    private final String FOS_B3_TEMPLATE_PATH = "src/main/resources/docTemplates/МакетФОСБ3.docx";
+    @Getter
     private final String CHARACTERISTIC_TEMPLATE_PATH = "src/main/resources/docTemplates/МакетХарактеристики.docx";
 
     private File characteristics;

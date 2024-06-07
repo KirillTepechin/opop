@@ -134,6 +134,8 @@ public class ExcelParser {
                                 new DisciplineExtended(currentRow.getCell(2).getStringCellValue(),
                                         currentRow.getCell(4).getStringCellValue(), parseVolume(currentRow, false))
                         );
+                        disciplinesData.setOverallZe(disciplinesData.getOverallZe()
+                                + Integer.parseInt(currentRow.getCell(16).getStringCellValue()));
                     }
                     //Если парсим 1 блок вариативные дисциплины
                     else if (i==1) {
@@ -147,12 +149,18 @@ public class ExcelParser {
                                     new DisciplineExtended(currentRow.getCell(1).getStringCellValue(),
                                             currentRow.getCell(3).getStringCellValue(),parseVolume(currentRow, true) , false, true)
                             );
+                            if(currentRow.getCell(0).getStringCellValue().equals("+")){
+                                disciplinesData.setOverallZe(disciplinesData.getOverallZe()
+                                        + Integer.parseInt(currentRow.getCell(15).getStringCellValue()));
+                            }
                         }
                         //Дисциплина не по выбору
                         else {
                             disciplinesData.getBlock1DisciplineList().add(
                                     new DisciplineExtended(currentRow.getCell(2).getStringCellValue(),
                                             currentRow.getCell(4).getStringCellValue(),parseVolume(currentRow, false) , false, false));
+                            disciplinesData.setOverallZe(disciplinesData.getOverallZe()
+                                    + Integer.parseInt(currentRow.getCell(16).getStringCellValue()));
                         }
                     }
                     //Если парсим блок 2 обязательные дисциплины
@@ -161,6 +169,8 @@ public class ExcelParser {
                                 new DisciplineExtended(currentRow.getCell(2).getStringCellValue(),
                                         currentRow.getCell(4).getStringCellValue(), parseVolume(currentRow, false))
                         );
+                        disciplinesData.setOverallZe(disciplinesData.getOverallZe()
+                                + Integer.parseInt(currentRow.getCell(16).getStringCellValue()));
                     }
                     //Если парсим блок 2 вариативные дисциплины
                     else if (i==3) {
@@ -168,6 +178,8 @@ public class ExcelParser {
                                 new DisciplineExtended(currentRow.getCell(2).getStringCellValue(),
                                         currentRow.getCell(4).getStringCellValue(),parseVolume(currentRow, false)  ,false, false)
                         );
+                        disciplinesData.setOverallZe(disciplinesData.getOverallZe()
+                                + Integer.parseInt(currentRow.getCell(16).getStringCellValue()));
                     }
                     //Если парсим блок 3
                     else if (i==4) {
@@ -175,6 +187,8 @@ public class ExcelParser {
                                 new Discipline(currentRow.getCell(2).getStringCellValue(),
                                         currentRow.getCell(4).getStringCellValue(), parseVolume(currentRow, false))
                         );
+                        disciplinesData.setOverallZe(disciplinesData.getOverallZe()
+                                + Integer.parseInt(currentRow.getCell(16).getStringCellValue()));
                     }
                     //Если парсим факультативы
                     else {

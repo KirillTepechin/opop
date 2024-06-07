@@ -13,7 +13,7 @@ public class CharacteristicParagraphData {
     private String titleEqualsEducationForm;
     private String titleContainsSpeciality;
     private String titleContainsProfile;
-
+    private String annotationContainsOverallZe;
     private String section11ContainsSpeciality;
     private String section12ContainsSpeciality;
     private String section12ContainsFgos;

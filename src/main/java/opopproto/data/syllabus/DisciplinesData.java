@@ -17,6 +17,8 @@ public class DisciplinesData {
     //Факультативы
     private List<Discipline> block4DisciplineList = new ArrayList<>();
 
+    private int overallZe;
+
     public List<Discipline> getBaseDisciplines(){
         List<Discipline> baseDisciplines = new ArrayList<>();
         baseDisciplines.addAll(block1DisciplineList.stream().filter(DisciplineExtended::isBase).toList());

@@ -23,6 +23,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -225,6 +226,34 @@ public class RpdGenerator extends AbstractGenerator{
                         }
                     }
                 }
+                else if (table.getRow(0).getCell(0).getText().trim().equals("№ п/п")
+                        && table.getRow(0).getCell(1).getText().equals("Код формируемой компетенции")){
+                    List<Competence> competences = discipline.getCompetences();
+                    List<String> evaluates = new ArrayList<>();
+
+                    if(!discipline.isB3() && !discipline.isPractice()){
+                        evaluates.add("Тест");
+                        int pw = discipline.getVolumeData().getVolumesBySemester().get(0).getPw();
+                        int lw = discipline.getVolumeData().getVolumesBySemester().get(0).getLw();
+                        List<String> controlForms = discipline.getVolumeData().getControlForm();
+                        if(pw!=0){
+                            evaluates.add("Практические работы");
+                        }
+                        else if (lw != 0) {
+                            evaluates.add("Лабораторные работы");
+                        }
+                        evaluates.add(String.join(", ", controlForms.stream()
+                                .map(cp->cp.substring(0, 1).toUpperCase() + cp.substring(1)).toList()));
+                    }
+                    else{
+                        evaluates.add("Письменный отчёт");
+                        evaluates.add("Практическое задание");
+                        evaluates.add("Зачёт с оценкой");
+                    }
+                    for (var comp: competences) {
+                        createCompetenceEvaluateRow(table, comp, competences.indexOf(comp) + 1, evaluates);
+                    }
+                }
             }
 
             File file = new File(documents.getDOCS_GEN_PATH() + "/Рабочие программы дисциплин/" + discipline.getIndex() + " "+ discipline.getName() + ".docx");
@@ -235,6 +264,8 @@ public class RpdGenerator extends AbstractGenerator{
 
         document.close();
     }
+
+
 
     private static void setCellText(XWPFTableCell cell, String text) {
         XWPFParagraph paragraph = cell.getParagraphs().get(0);
@@ -316,6 +347,91 @@ public class RpdGenerator extends AbstractGenerator{
         XWPFRun runID32 = paragraphID3.createRun();
         runID32.setText(comp.getIndex());
         runID32.setSubscript(VerticalAlign.SUBSCRIPT);
+
+        row1.getCell(0).getCTTc().addNewTcPr();
+        row1.getCell(1).getCTTc().addNewTcPr();
+        row2.getCell(0).getCTTc().addNewTcPr();
+        row2.getCell(1).getCTTc().addNewTcPr();
+        row3.getCell(0).getCTTc().addNewTcPr();
+        row3.getCell(1).getCTTc().addNewTcPr();
+
+        CTVMerge vmerge = CTVMerge.Factory.newInstance();
+        vmerge.setVal(STMerge.RESTART);
+        row1.getCell(0).getCTTc().getTcPr().setVMerge(vmerge);
+        row1.getCell(1).getCTTc().getTcPr().setVMerge(vmerge);
+
+        CTVMerge vmerge1 = CTVMerge.Factory.newInstance();
+        vmerge1.setVal(STMerge.CONTINUE);
+        row2.getCell(0).getCTTc().getTcPr().setVMerge(vmerge1);
+        row2.getCell(1).getCTTc().getTcPr().setVMerge(vmerge1);
+
+        CTVMerge vmerge2 = CTVMerge.Factory.newInstance();
+        vmerge2.setVal(STMerge.CONTINUE);
+        row3.getCell(0).getCTTc().getTcPr().setVMerge(vmerge2);
+        row3.getCell(1).getCTTc().getTcPr().setVMerge(vmerge2);
+    }
+
+    private void createCompetenceEvaluateRow(XWPFTable table, Competence comp, int index, List<String> evaluates) {
+        XWPFTableRow row1 = table.createRow();
+
+        XWPFParagraph paragraphIndex = row1.getCell(0).getParagraphs().get(0);
+        paragraphIndex.setAlignment(ParagraphAlignment.CENTER);
+        XWPFRun runIndex = paragraphIndex.createRun();
+        runIndex.setText(index + ".");
+
+        XWPFParagraph paragraphComp = row1.getCell(1).getParagraphs().get(0);
+        paragraphComp.setAlignment(ParagraphAlignment.CENTER);
+        XWPFRun runComp = paragraphComp.createRun();
+        runComp.setText(comp.getIndex());
+        runComp.setBold(true);
+
+
+        XWPFParagraph paragraphID1 = row1.getCell(2).getParagraphs().get(0);
+        paragraphID1.setAlignment(ParagraphAlignment.CENTER);
+        XWPFRun runID1 = paragraphID1.createRun();
+        runID1.setText("ИД-1 ");
+
+        XWPFRun runID2 = paragraphID1.createRun();
+        runID2.setText(comp.getIndex());
+        runID2.setSubscript(VerticalAlign.SUBSCRIPT);
+
+        XWPFTableRow row2 = table.createRow();
+
+        XWPFParagraph paragraphID2 = row2.getCell(2).getParagraphs().get(0);
+        paragraphID2.setAlignment(ParagraphAlignment.CENTER);
+        XWPFRun runID11 = paragraphID2.createRun();
+        runID11.setText("ИД-2 ");
+
+        XWPFRun runID12 = paragraphID2.createRun();
+        runID12.setText(comp.getIndex());
+        runID12.setSubscript(VerticalAlign.SUBSCRIPT);
+
+        XWPFTableRow row3 = table.createRow();
+
+        XWPFParagraph paragraphID3 = row3.getCell(2).getParagraphs().get(0);
+        paragraphID3.setAlignment(ParagraphAlignment.CENTER);
+        XWPFRun runID31 = paragraphID3.createRun();
+        runID31.setText("ИД-3 ");
+
+        XWPFRun runID32 = paragraphID3.createRun();
+        runID32.setText(comp.getIndex());
+        runID32.setSubscript(VerticalAlign.SUBSCRIPT);
+
+        //Оцен срес
+        XWPFParagraph paragraphEval1 = row1.getCell(3).getParagraphs().get(0);
+        paragraphEval1.setAlignment(ParagraphAlignment.CENTER);
+        XWPFRun runEval1 = paragraphEval1.createRun();
+        runEval1.setText(String.join(", ", evaluates));
+
+        XWPFParagraph paragraphEval2 = row2.getCell(3).getParagraphs().get(0);
+        paragraphEval2.setAlignment(ParagraphAlignment.CENTER);
+        XWPFRun runEval2 = paragraphEval2.createRun();
+        runEval2.setText(String.join(", ", evaluates));
+
+        XWPFParagraph paragraphEval3 = row3.getCell(3).getParagraphs().get(0);
+        paragraphEval3.setAlignment(ParagraphAlignment.CENTER);
+        XWPFRun runEval3 = paragraphEval3.createRun();
+        runEval3.setText(String.join(", ", evaluates));
 
         row1.getCell(0).getCTTc().addNewTcPr();
         row1.getCell(1).getCTTc().addNewTcPr();
