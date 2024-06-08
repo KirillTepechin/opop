@@ -24,7 +24,7 @@
                         <h4 th:if="${insDto.isValid && !insDto.isOk}">Ошибки в документах</h4>
                         <h4 th:if="${insDto.isValid && insDto.isOk}">В документах отсутствуют ошибки</h4>
                     </div>
-                        <div th:if="${insDto.isOk==false && insDto.isValid==false}" class="btn-group-vertical">
+                        <div th:if="${insDto.isOk==false && insDto.isValid==false}" class="btn-group-vertical" style="width: 70% !important">
                             <div th:if="${insDto.characteristicsFound==false}" class="btn-group col-sm-8">
                                 <button type="button" class="btn btn-warning dropdown-toggle" data-bs-toggle="dropdown"
                                         aria-expanded="false">Характеристика не найдена
@@ -121,7 +121,7 @@
                         </div>
 
 
-                    <div th:if="${insDto.isOk==false && insDto.isValid==true}" class="btn-group-vertical">
+                    <div th:if="${insDto.isOk==false && insDto.isValid==true}" class="btn-group-vertical" style="width: 70% !important">
                         <div th:if="${insDto.characteristicErrors.isEmpty==false}" class="btn-group col-sm-8">
                             <button th:utext="'Ошибки в характеристике (' + ${insDto.characteristicErrors.size()} + ')'" type="button" class="btn btn-danger dropdown-toggle" data-bs-toggle="dropdown"
                                     aria-expanded="false">

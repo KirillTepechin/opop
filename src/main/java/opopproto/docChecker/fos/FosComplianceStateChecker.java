@@ -272,7 +272,8 @@ public class FosComplianceStateChecker {
         for (var disc: syllabusDisciplines) {
             String name = disc.getIndex()+" "+disc.getName()+" ФОС.docx";
             if(!fos.containsKey(name)){
-                errorsIndDeficit.add(disc.getIndex());
+                if(!disc.isB3())
+                    errorsIndDeficit.add(disc.getIndex());
             }
             else{
                 clearFos.put(name, fos.get(name));

@@ -24,8 +24,8 @@
             <td th:text="${genDto.forms}"></td>
             <td>
                 <a th:href="@{|/download/gen?uuid=${genDto.docUuid}|}"
-                   th:download="${genDto.specialty}+${genDto.startYear}+'.zip'"
-                   th:text="${genDto.specialty}+${genDto.startYear}+'.zip'" >
+                   th:download="${genDto.specialty}+' '+${genDto.startYear}+'.zip'"
+                   th:text="${genDto.specialty}+' '+${genDto.startYear}+'.zip'" >
                 </a>
             </td>
         </tr>

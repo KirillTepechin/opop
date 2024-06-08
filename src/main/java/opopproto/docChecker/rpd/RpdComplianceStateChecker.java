@@ -582,7 +582,8 @@ public class RpdComplianceStateChecker {
         for (var disc: syllabusDisciplines) {
             String name = disc.getIndex()+" "+disc.getName()+".docx";
             if(!rpd.containsKey(name)){
-                errorsIndDeficit.add(disc.getIndex());
+                if(!disc.isB3())
+                    errorsIndDeficit.add(disc.getIndex());
             }
             else{
                 clearRpd.put(name, rpd.get(name));
